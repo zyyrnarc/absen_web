@@ -12,11 +12,8 @@
         <a href="{{ route('manage-mentor') }}"   class="sidebar-link {{ request()->routeIs('manage-mentor') ? 'active' : '' }}"><span class="sidebar-icon">👨‍🏫</span> Manage Mentor</a>
         <a href="{{ route('setting') }}"         class="sidebar-link {{ request()->routeIs('setting') ? 'active' : '' }}"><span class="sidebar-icon">⚙️</span> Setting</a>
         <div class="flex-1"></div>
-        <form action="{{ route('logout') }}" method="POST" class="mt-4">
-            @csrf
-            <button type="submit" class="sidebar-link w-full text-left text-red-400">
-                <span class="sidebar-icon">🚪</span> Logout
-            </button>
-        </form>
+        <a href="{{ route('logout.page') }}" class="sidebar-link mt-4 text-red-400">
+            <span class="sidebar-icon">🚪</span> Logout
+        </a>
     </nav>
 </aside>

@@ -3,7 +3,17 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 
 class Student extends Model {
-    protected $fillable = ['name', 'email', 'major', 'campus_id', 'mentor_id'];
+    protected $fillable = [
+        'name',
+        'nim',
+        'major',
+        'study_program',
+        'campus_id',
+        'mentor_id',
+        'email',
+        'username',
+        'status',
+    ];
 
     public function campus()           { return $this->belongsTo(Campus::class); }
     public function mentor()           { return $this->belongsTo(Mentor::class); }

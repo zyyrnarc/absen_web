@@ -13,6 +13,11 @@ return new class extends Migration
     {
         Schema::create('permits', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('student_id')->constrained()->cascadeOnDelete();
+            $table->string('type');
+            $table->date('permit_date');
+            $table->text('reason')->nullable();
+            $table->string('status')->default('pending');
             $table->timestamps();
         });
     }

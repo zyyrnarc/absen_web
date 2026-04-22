@@ -223,10 +223,9 @@
 <div class="card">
   <h1>Welcome</h1>
 
-  {{-- ERROR MESSAGE --}}
-  @if(session('error'))
-    <div style="color:red; text-align:center; margin-bottom:10px;">
-      {{ session('error') }}
+  @if ($errors->any())
+    <div style="color:#fca5a5; text-align:center; margin-bottom:14px; font-size:.9rem;">
+      {{ $errors->first() }}
     </div>
   @endif
 

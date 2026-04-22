@@ -13,6 +13,9 @@ return new class extends Migration
     {
         Schema::create('weekly_activities', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('student_id')->constrained()->cascadeOnDelete();
+            $table->string('activity_name');
+            $table->date('activity_date');
             $table->timestamps();
         });
     }

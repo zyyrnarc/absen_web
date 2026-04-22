@@ -11,7 +11,17 @@ class AuthController extends Controller
     // Tampilkan halaman login
     public function showLogin()
     {
+        if (Auth::guard('admin')->check()) {
+            return redirect()->route('dashboard');
+        }
+
         return view('auth.login');
+    }
+
+    // Tampilkan halaman konfirmasi logout
+    public function showLogout()
+    {
+        return view('auth.logout');
     }
 
     // Proses login

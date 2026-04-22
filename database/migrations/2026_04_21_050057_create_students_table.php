@@ -13,6 +13,15 @@ return new class extends Migration
     {
         Schema::create('students', function (Blueprint $table) {
             $table->id();
+            $table->string('name');
+            $table->string('nim')->unique()->nullable();
+            $table->string('major')->nullable();
+            $table->string('study_program')->nullable();
+            $table->foreignId('campus_id')->nullable()->constrained()->nullOnDelete();
+            $table->foreignId('mentor_id')->nullable()->constrained()->nullOnDelete();
+            $table->string('email')->unique()->nullable();
+            $table->string('username')->unique()->nullable();
+            $table->enum('status', ['active', 'inactive'])->default('active');
             $table->timestamps();
         });
     }
