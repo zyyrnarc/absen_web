@@ -10,9 +10,7 @@ use Illuminate\Support\Facades\Route;
 
 // root langsung ke login
 Route::get('/', function () {
-    return auth('admin')->check()
-        ? redirect()->route('dashboard')
-        : redirect()->route('login');
+    return redirect()->route('login');
 });
 
 // Backward-compatible aliases for old URLs without /admin prefix.
@@ -31,7 +29,7 @@ Route::prefix('admin')->group(function () {
     Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
     Route::post('/login', [AuthController::class, 'login'])->name('login.process');
 
-    Route::middleware('auth:admin')->group(function () {
+    Route::middleware(['auth:admin', 'admin.idle'])->group(function () {
         Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
         Route::get('/logout', [AuthController::class, 'showLogout'])->name('logout.page');
         Route::post('/logout', [AuthController::class, 'logout'])->name('logout');

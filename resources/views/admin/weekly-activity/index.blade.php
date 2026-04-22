@@ -9,10 +9,10 @@
 </div>
 
 {{-- FILTER ROW --}}
-<div class="flex items-center justify-between mb-4 flex-wrap gap-3">
+<div class="toolbar-row mb-4">
 
     {{-- Student selector --}}
-    <form method="GET" action="{{ route('weekly-activity') }}" class="flex items-center gap-3 flex-wrap">
+    <form method="GET" action="{{ route('weekly-activity') }}" class="toolbar-form">
         <select name="student_id" class="student-select-btn" onchange="this.form.submit()">
             <option value="">👤 Semua Mahasiswa</option>
             @foreach($students as $student)
@@ -23,10 +23,10 @@
         </select>
 
         {{-- Spacer --}}
-        <div class="flex-1"></div>
+        <div class="toolbar-spacer"></div>
 
         {{-- Hamburger icon --}}
-        <div class="w-9 h-9 flex items-center justify-center bg-white border border-gray-200 rounded-lg cursor-pointer shadow-sm text-gray-500 font-bold text-lg">
+        <div class="toolbar-icon">
             ☰
         </div>
 
@@ -41,7 +41,7 @@
 </div>
 
 {{-- TABLE --}}
-<div class="bg-white rounded-2xl shadow-md overflow-hidden">
+<div class="content-panel rounded-2xl overflow-hidden">
     <table class="w-full text-sm">
         <thead>
             <tr class="text-gray-600 font-bold text-left bg-gray-50 border-b border-gray-100">

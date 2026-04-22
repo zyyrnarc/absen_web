@@ -18,11 +18,11 @@
         <style>{!! $fallbackCss !!}</style>
     @endif
 </head>
-<body class="font-nunito min-h-screen flex">
+<body class="font-nunito app-shell">
     @include('layouts.sidebar')
-    <main class="flex-1 flex flex-col min-h-screen overflow-auto">
+    <main class="app-main">
         @include('layouts.header')
-        <div class="flex-1 p-6">
+        <div class="app-content">
             @if(session('success'))
                 <div class="flash-success mb-4">{{ session('success') }}</div>
             @endif

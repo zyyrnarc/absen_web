@@ -9,7 +9,7 @@
 </div>
 
 {{-- STAT CARDS --}}
-<div class="flex gap-4 mb-6">
+<div class="stat-grid mb-6">
     <div class="stat-card bg-card-purple text-white rounded-2xl px-6 py-4 shadow-md">
         <p class="text-xs font-semibold uppercase opacity-80 mb-1">Total Workdays</p>
         <p class="text-4xl font-extrabold">{{ $totalWorkdays }} Days</p>
@@ -22,16 +22,16 @@
         <p class="text-xs font-semibold uppercase opacity-80 mb-1">Waiting Permit</p>
         <p class="text-4xl font-extrabold">{{ $waitingPermit }}</p>
     </div>
-    <div class="flex items-center ml-auto">
+    <div class="stat-grid-action">
         <a href="#" class="btn-pdf">PDF</a>
     </div>
 </div>
 
 {{-- MAIN ROW --}}
-<div class="flex gap-5">
+<div class="page-split">
 
     {{-- KIRI: Tabel Attendance --}}
-    <div class="flex-1 bg-white rounded-2xl p-5 shadow-md">
+    <div class="content-panel rounded-2xl p-5">
 
         {{-- Title + Filter bulan --}}
         <div class="flex items-center justify-between mb-4">
@@ -116,7 +116,7 @@
     </div>
 
     {{-- KANAN: Pending Permit --}}
-    <div class="w-64 bg-white rounded-2xl p-5 shadow-md flex flex-col">
+    <div class="permit-panel rounded-2xl p-5 flex flex-col">
         <h2 class="text-base font-bold text-gray-700 mb-4">Pending Permit</h2>
 
         <div class="flex flex-col gap-3 flex-1">

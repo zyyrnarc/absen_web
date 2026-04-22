@@ -9,10 +9,12 @@ use Illuminate\Support\Facades\Auth;
 class AuthController extends Controller
 {
     // Tampilkan halaman login
-    public function showLogin()
+    public function showLogin(Request $request)
     {
         if (Auth::guard('admin')->check()) {
-            return redirect()->route('dashboard');
+            Auth::guard('admin')->logout();
+            $request->session()->invalidate();
+            $request->session()->regenerateToken();
         }
 
         return view('auth.login');
@@ -36,6 +38,7 @@ class AuthController extends Controller
 
         if (Auth::guard('admin')->attempt($credentials)) {
             $request->session()->regenerate();
+            $request->session()->put('admin_last_activity', time());
             return redirect()->route('dashboard');
         }
 
@@ -48,6 +51,7 @@ class AuthController extends Controller
     public function logout(Request $request)
     {
         Auth::guard('admin')->logout();
+        $request->session()->forget('admin_last_activity');
         $request->session()->invalidate();
         $request->session()->regenerateToken();
         return redirect()->route('login');
