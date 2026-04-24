@@ -2,12 +2,6 @@
 
 @section('content')
 
-{{-- HEADER --}}
-<div class="mb-6">
-    <h1 class="text-2xl font-extrabold text-gray-800">Weekly Activity</h1>
-    <p class="text-sm text-gray-500 mt-1">For a week, this Interns are working hard!!</p>
-</div>
-
 {{-- FILTER ROW --}}
 <div class="toolbar-row mb-4">
 

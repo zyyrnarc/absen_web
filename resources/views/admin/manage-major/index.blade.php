@@ -2,12 +2,6 @@
 
 @section('content')
 
-{{-- HEADER --}}
-<div class="mb-6">
-    <h1 class="text-2xl font-extrabold text-gray-800">Manage Major</h1>
-    <p class="text-sm text-gray-500 mt-1">Managing Major interns on your company</p>
-</div>
-
 {{-- Flash --}}
 @if(session('success'))
     <div class="flash-success mb-4">{{ session('success') }}</div>

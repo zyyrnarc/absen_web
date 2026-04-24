@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Admin\AuthController;
 use App\Http\Controllers\Admin\DashboardController;
+use App\Http\Controllers\Admin\ProfileController;
 use App\Http\Controllers\ManageMajorController;
 use App\Http\Controllers\ManageStudentController;
 use App\Http\Controllers\MonthlyAbsenceController;
@@ -23,6 +24,7 @@ Route::redirect('/manage-student', '/admin/manage-student');
 Route::redirect('/manage-major', '/admin/manage-major');
 Route::redirect('/manage-campus', '/admin/manage-campus');
 Route::redirect('/manage-mentor', '/admin/manage-mentor');
+Route::redirect('/profile', '/admin/profile');
 Route::redirect('/setting', '/admin/setting');
 
 Route::prefix('admin')->group(function () {
@@ -50,8 +52,12 @@ Route::prefix('admin')->group(function () {
 
         Route::get('/manage-student', [ManageStudentController::class, 'index'])
             ->name('manage-student');
+        Route::get('/manage-student/create', [ManageStudentController::class, 'create'])
+            ->name('manage-student.create');
         Route::post('/manage-student', [ManageStudentController::class, 'store'])
             ->name('manage-student.store');
+        Route::get('/manage-student/{student}/edit', [ManageStudentController::class, 'edit'])
+            ->name('manage-student.edit');
         Route::put('/manage-student/{student}', [ManageStudentController::class, 'update'])
             ->name('manage-student.update');
         Route::delete('/manage-student/{student}', [ManageStudentController::class, 'destroy'])
@@ -74,8 +80,9 @@ Route::prefix('admin')->group(function () {
             return redirect()->route('dashboard');
         })->name('manage-mentor');
 
-        Route::get('/setting', function () {
-            return redirect()->route('dashboard');
-        })->name('setting');
+        Route::get('/profile', [ProfileController::class, 'showProfile'])->name('profile');
+        Route::get('/setting', [ProfileController::class, 'showSetting'])->name('setting');
+        Route::put('/setting/company', [ProfileController::class, 'updateSetting'])->name('setting.update');
+        Route::put('/setting/password', [ProfileController::class, 'updatePassword'])->name('setting.password.update');
     });
 });

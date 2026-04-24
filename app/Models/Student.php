@@ -8,10 +8,11 @@ class Student extends Model {
         'nim',
         'major',
         'study_program',
-        'campus_id',
-        'mentor_id',
+        'campus',
+        'mentor',
         'email',
         'username',
+        'password',
         'status',
     ];
 

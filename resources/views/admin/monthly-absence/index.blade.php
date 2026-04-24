@@ -2,12 +2,6 @@
 
 @section('content')
 
-{{-- HEADER --}}
-<div class="mb-6">
-    <h1 class="text-2xl font-extrabold text-gray-800">Manage Monthly Absence</h1>
-    <p class="text-sm text-gray-500 mt-1">👉 Keep going! Don't stop monitoring!!! 👍</p>
-</div>
-
 {{-- STAT CARDS --}}
 <div class="stat-grid mb-6">
     <div class="stat-card bg-card-purple text-white rounded-2xl px-6 py-4 shadow-md">
@@ -106,7 +100,7 @@
                     </select>
                 </div>
                 <div class="relative">
-                    <span class="absolute left-2.5 top-1/2 -translate-y-1/2 text-gray-400 text-xs">🔍</span>
+                    <span class="absolute left-2.5 top-1/2 -translate-y-1/2 text-gray-400 text-xs">Search</span>
                     <input type="text" name="search" value="{{ $search }}" placeholder="Search"
                            class="search-input" onchange="this.form.submit()">
                 </div>
@@ -142,7 +136,6 @@
             @endforelse
         </div>
 
-        {{-- View all (buka modal) --}}
         <button onclick="document.getElementById('modalPermit').classList.remove('hidden')"
                 class="mt-4 text-center text-sm text-purple-500 hover:text-purple-700 font-semibold hover:underline">
             View all permit ....
@@ -155,7 +148,7 @@
 <div id="modalPermit" class="modal-overlay hidden">
     <div class="modal-box">
         <h2>Pending Permit</h2>
-        <button class="modal-close" onclick="document.getElementById('modalPermit').classList.add('hidden')">✕</button>
+        <button class="modal-close" onclick="document.getElementById('modalPermit').classList.add('hidden')">x</button>
 
         <div class="flex flex-col gap-3">
             @forelse($pendingPermits as $permit)
@@ -182,7 +175,6 @@
     </div>
 </div>
 
-{{-- Tutup modal kalau klik di luar --}}
 <script>
     document.getElementById('modalPermit').addEventListener('click', function(e) {
         if (e.target === this) this.classList.add('hidden');
