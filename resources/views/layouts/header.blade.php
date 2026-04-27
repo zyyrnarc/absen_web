@@ -23,6 +23,16 @@
             'title' => 'Organize majors and study programs quickly.',
             'subtitle' => 'Use this page to keep major data consistent, searchable, and easy to maintain.',
         ],
+        'manage-campus' => [
+            'badge' => 'Manage Campus',
+            'title' => 'Manage campus records in one focused page.',
+            'subtitle' => 'Add, update, search, and review campus information so student data stays consistent.',
+        ],
+        'manage-mentor' => [
+            'badge' => 'Manage Mentor',
+            'title' => 'Manage mentor data more clearly.',
+            'subtitle' => 'Keep mentor names and positions organized so the team can update records with less friction.',
+        ],
         'monthly-absence' => [
             'badge' => 'Monthly Absence',
             'title' => 'Keep monthly attendance under control.',

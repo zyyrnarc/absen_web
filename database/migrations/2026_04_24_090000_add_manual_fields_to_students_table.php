@@ -28,9 +28,14 @@ return new class extends Migration
                 ->leftJoin('campuses', 'students.campus_id', '=', 'campuses.id')
                 ->whereNull('students.campus')
                 ->whereNotNull('campuses.name')
-                ->update([
-                    'students.campus' => DB::raw('campuses.name'),
-                ]);
+                ->select('students.id', 'campuses.name as campus_name')
+                ->orderBy('students.id')
+                ->get()
+                ->each(function (object $student): void {
+                    DB::table('students')
+                        ->where('id', $student->id)
+                        ->update(['campus' => $student->campus_name]);
+                });
         }
 
         if (Schema::hasColumn('students', 'mentor_id')) {
@@ -38,9 +43,14 @@ return new class extends Migration
                 ->leftJoin('mentors', 'students.mentor_id', '=', 'mentors.id')
                 ->whereNull('students.mentor')
                 ->whereNotNull('mentors.name')
-                ->update([
-                    'students.mentor' => DB::raw('mentors.name'),
-                ]);
+                ->select('students.id', 'mentors.name as mentor_name')
+                ->orderBy('students.id')
+                ->get()
+                ->each(function (object $student): void {
+                    DB::table('students')
+                        ->where('id', $student->id)
+                        ->update(['mentor' => $student->mentor_name]);
+                });
         }
     }
 

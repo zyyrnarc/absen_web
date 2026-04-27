@@ -3,7 +3,9 @@
 use App\Http\Controllers\Admin\AuthController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\ProfileController;
+use App\Http\Controllers\ManageCampusController;
 use App\Http\Controllers\ManageMajorController;
+use App\Http\Controllers\ManageMentorController;
 use App\Http\Controllers\ManageStudentController;
 use App\Http\Controllers\MonthlyAbsenceController;
 use App\Http\Controllers\WeeklyActivityController;
@@ -72,13 +74,23 @@ Route::prefix('admin')->group(function () {
         Route::delete('/manage-major/{major}', [ManageMajorController::class, 'destroy'])
             ->name('manage-major.destroy');
 
-        Route::get('/manage-campus', function () {
-            return redirect()->route('dashboard');
-        })->name('manage-campus');
+        Route::get('/manage-campus', [ManageCampusController::class, 'index'])
+            ->name('manage-campus');
+        Route::post('/manage-campus', [ManageCampusController::class, 'store'])
+            ->name('manage-campus.store');
+        Route::put('/manage-campus/{campus}', [ManageCampusController::class, 'update'])
+            ->name('manage-campus.update');
+        Route::delete('/manage-campus/{campus}', [ManageCampusController::class, 'destroy'])
+            ->name('manage-campus.destroy');
 
-        Route::get('/manage-mentor', function () {
-            return redirect()->route('dashboard');
-        })->name('manage-mentor');
+        Route::get('/manage-mentor', [ManageMentorController::class, 'index'])
+            ->name('manage-mentor');
+        Route::post('/manage-mentor', [ManageMentorController::class, 'store'])
+            ->name('manage-mentor.store');
+        Route::put('/manage-mentor/{mentor}', [ManageMentorController::class, 'update'])
+            ->name('manage-mentor.update');
+        Route::delete('/manage-mentor/{mentor}', [ManageMentorController::class, 'destroy'])
+            ->name('manage-mentor.destroy');
 
         Route::get('/profile', [ProfileController::class, 'showProfile'])->name('profile');
         Route::get('/setting', [ProfileController::class, 'showSetting'])->name('setting');
