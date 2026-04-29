@@ -6,29 +6,28 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-class Permit extends Model
+class InternProfile extends Model
 {
     use HasFactory;
 
     protected $fillable = [
-        'student_id',
         'user_id',
-        'type',
-        'permit_date',
-        'reason',
-        'attachment_path',
-        'attachment_original_name',
+        'student_id',
+        'institution_name',
+        'major',
+        'study_program',
+        'division',
+        'supervisor_name',
+        'gender',
+        'internship_start',
+        'internship_end',
         'status',
     ];
 
     protected $casts = [
-        'permit_date' => 'date',
+        'internship_start' => 'date',
+        'internship_end' => 'date',
     ];
-
-    public function student(): BelongsTo
-    {
-        return $this->belongsTo(Student::class);
-    }
 
     public function user(): BelongsTo
     {

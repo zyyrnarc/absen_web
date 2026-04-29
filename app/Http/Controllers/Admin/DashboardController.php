@@ -3,11 +3,11 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Campus;
-use App\Models\Student;
 use App\Models\Mentor;
 use App\Models\Attendance;
 use App\Models\Permit;
-use App\Models\WeeklyActivity;
+use App\Models\InternActivity;
+use App\Models\User;
 use Carbon\Carbon;
 
 class DashboardController extends Controller
@@ -15,46 +15,73 @@ class DashboardController extends Controller
     public function index()
     {
         $totalCampus    = Campus::count();
-        $totalMahasiswa = Student::count();
+        $totalMahasiswa = User::query()->where('role', 'intern')->count();
         $totalMentor    = Mentor::count();
+        $selectedYear   = (int) request('year', now()->year);
 
-        $notifications = Attendance::latest()
-            ->take(5)->with('student')->get()
-            ->map(fn ($a) => "@{$a->student->name} Hadir Pukul {$a->time} wib")
+        $notifications = Attendance::query()
+            ->with(['user', 'student'])
+            ->where(function ($query) {
+                $query->whereNotNull('check_in_at')
+                    ->orWhereNotNull('time');
+            })
+            ->latest('check_in_at')
+            ->take(5)
+            ->get()
+            ->map(function (Attendance $attendance): string {
+                $name = $attendance->user?->name ?? $attendance->student?->name ?? 'Pengguna';
+                $time = $attendance->check_in_at?->format('H:i') ?? $attendance->time ?? '-';
+
+                return "@{$name} Hadir Pukul {$time} WIB";
+            })
             ->toArray();
 
         $selectedMonth = request('bulan', now()->month);
         $months = [
-            1=>'Januari 2026',   2=>'Februari 2026',
-            3=>'Maret 2026',     4=>'April 2026',
-            5=>'Mei 2026',       6=>'Juni 2026',
-            7=>'Juli 2026',      8=>'Agustus 2026',
-            9=>'September 2026', 10=>'Oktober 2026',
-            11=>'November 2026', 12=>'Desember 2026',
+            1=>"Januari {$selectedYear}",   2=>"Februari {$selectedYear}",
+            3=>"Maret {$selectedYear}",     4=>"April {$selectedYear}",
+            5=>"Mei {$selectedYear}",       6=>"Juni {$selectedYear}",
+            7=>"Juli {$selectedYear}",      8=>"Agustus {$selectedYear}",
+            9=>"September {$selectedYear}", 10=>"Oktober {$selectedYear}",
+            11=>"November {$selectedYear}", 12=>"Desember {$selectedYear}",
         ];
 
         $days = ['Senin','Selasa','Rabu','Kamis','Jumat'];
-        $chartData = [];
-        foreach ($days as $i => $day) {
-            $date = now()->startOfMonth()->next('Monday')->addDays($i);
-            $chartData[$day] = Attendance::whereDate('attendance_date', $date)
-                ->where('status', 'hadir')->count();
+        $chartData = array_fill_keys($days, 0);
+
+        $monthlyAttendances = Attendance::query()
+            ->whereYear('attendance_date', $selectedYear)
+            ->whereMonth('attendance_date', $selectedMonth)
+            ->where(function ($query) {
+                $query->whereNotNull('check_in_at')
+                    ->orWhereNotNull('time');
+            })
+            ->get();
+
+        foreach ($monthlyAttendances as $attendance) {
+            $dayName = Carbon::parse($attendance->attendance_date)->locale('id')->dayName;
+
+            if (array_key_exists($dayName, $chartData)) {
+                $chartData[$dayName]++;
+            }
         }
         $chartMax = max($chartData) ?: 30;
 
-        $weeklyActivities = WeeklyActivity::whereDate('activity_date', today())
-            ->with('student')->get()
+        $weeklyActivities = InternActivity::query()
+            ->whereDate('activity_date', today())
+            ->with('user')
+            ->get()
             ->map(fn ($w) => [
-                'day'       => now()->locale('id')->dayName,
-                'mahasiswa' => $w->student->name,
-                'aktivty'   => $w->activity_name,
+                'day'       => Carbon::parse($w->activity_date)->locale('id')->dayName,
+                'mahasiswa' => $w->user?->name ?? 'Pengguna',
+                'aktivty'   => $w->title,
             ])->toArray();
 
         $pendingPermits = Permit::where('status', 'pending')
-            ->with('student')->latest()->take(5)->get()
+            ->with(['user', 'student'])->latest('permit_date')->take(5)->get()
             ->map(fn ($p) => [
                 'id'   => $p->id,
-                'name' => $p->student->name,
+                'name' => $p->user?->name ?? $p->student?->name ?? 'Pengguna',
                 'type' => $p->type,
                 'date' => Carbon::parse($p->permit_date)
                             ->locale('id')->isoFormat('D MMMM YYYY'),

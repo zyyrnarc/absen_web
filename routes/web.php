@@ -2,13 +2,13 @@
 
 use App\Http\Controllers\Admin\AuthController;
 use App\Http\Controllers\Admin\DashboardController;
+use App\Http\Controllers\Admin\ManageCampusController;
+use App\Http\Controllers\Admin\ManageMajorController;
+use App\Http\Controllers\Admin\ManageMentorController;
+use App\Http\Controllers\Admin\ManageStudentController;
+use App\Http\Controllers\Admin\MonthlyAbsenceController;
 use App\Http\Controllers\Admin\ProfileController;
-use App\Http\Controllers\ManageCampusController;
-use App\Http\Controllers\ManageMajorController;
-use App\Http\Controllers\ManageMentorController;
-use App\Http\Controllers\ManageStudentController;
-use App\Http\Controllers\MonthlyAbsenceController;
-use App\Http\Controllers\WeeklyActivityController;
+use App\Http\Controllers\Admin\WeeklyActivityController;
 use Illuminate\Support\Facades\Route;
 
 // root langsung ke login

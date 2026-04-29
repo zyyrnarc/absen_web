@@ -55,7 +55,7 @@
                     <td class="px-5 py-3 text-gray-600">{{ $student->major ?? '-' }}</td>
                     <td class="px-5 py-3 text-gray-600">{{ $student->campus ?? '-' }}</td>
                     <td class="px-5 py-3 text-gray-600">{{ $student->mentor ?? '-' }}</td>
-                    <td class="px-5 py-3 text-gray-600">{{ $student->password ?? '-' }}</td>
+                    <td class="px-5 py-3 text-gray-600">{{ $student->password }}</td>
                     <td class="px-5 py-3">
                         <span class="{{ $student->status === 'active' ? 'status-active' : 'status-inactive' }}">
                             {{ $student->status }}

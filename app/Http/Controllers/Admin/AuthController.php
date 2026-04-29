@@ -34,7 +34,12 @@ class AuthController extends Controller
             'password' => 'required|min:6',
         ]);
 
-        $credentials = $request->only('email', 'password');
+        $credentials = [
+            'email' => $request->input('email'),
+            'password' => $request->input('password'),
+            'role' => 'admin',
+            'is_active' => true,
+        ];
 
         if (Auth::guard('admin')->attempt($credentials)) {
             $request->session()->regenerate();

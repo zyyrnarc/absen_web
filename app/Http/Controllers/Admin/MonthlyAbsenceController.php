@@ -1,41 +1,49 @@
 <?php
-namespace App\Http\Controllers;
 
+namespace App\Http\Controllers\Admin;
+
+use App\Http\Controllers\Controller;
 use App\Models\Attendance;
 use App\Models\Permit;
-use App\Models\Student;
 use Carbon\Carbon;
 
 class MonthlyAbsenceController extends Controller
 {
     public function index()
     {
-        $selectedMonth = request('month', now()->month);
-        $selectedYear  = request('year', now()->year);
-        $search        = request('search');
+        $selectedMonth = (int) request('month', now()->month);
+        $selectedYear  = (int) request('year', now()->year);
+        $search        = (string) request('search', '');
 
         // Stat cards
         $totalWorkdays   = $this->countWorkdays($selectedYear, $selectedMonth);
         $presentToday    = Attendance::whereDate('attendance_date', today())
-                            ->where('status', 'hadir')->count();
+                            ->where(function ($query) {
+                                $query->whereNotNull('check_in_at')
+                                    ->orWhereNotNull('time');
+                            })->count();
         $waitingPermit   = Permit::where('status', 'pending')->count();
 
         // Tabel daily attendance
-        $attendances = Attendance::with('student')
+        $attendances = Attendance::with(['user', 'student'])
             ->whereYear('attendance_date', $selectedYear)
             ->whereMonth('attendance_date', $selectedMonth)
-            ->when($search, fn ($q) => $q->whereHas('student', fn ($q) =>
-                $q->where('name', 'like', "%$search%")
-            ))
+            ->when($search, function ($query) use ($search) {
+                $query->where(function ($builder) use ($search) {
+                    $builder
+                        ->whereHas('user', fn ($userQuery) => $userQuery->where('name', 'like', "%{$search}%"))
+                        ->orWhereHas('student', fn ($studentQuery) => $studentQuery->where('name', 'like', "%{$search}%"));
+                });
+            })
             ->latest('attendance_date')
             ->get();
 
         // Pending permits (sidebar kanan)
         $pendingPermits = Permit::where('status', 'pending')
-            ->with('student')->latest()->take(5)->get()
+            ->with(['user', 'student'])->latest('permit_date')->take(5)->get()
             ->map(fn ($p) => [
                 'id'   => $p->id,
-                'name' => $p->student->name,
+                'name' => $p->user?->name ?? $p->student?->name ?? 'Pengguna',
                 'type' => $p->type,
                 'date' => Carbon::parse($p->permit_date)->locale('id')->isoFormat('D MMMM YYYY'),
             ])->toArray();
@@ -59,7 +67,7 @@ class MonthlyAbsenceController extends Controller
         return back()->with('success', "Permit berhasil di-approve.");
     }
 
-    private function countWorkdays($year, $month): int
+    private function countWorkdays(int $year, int $month): int
     {
         $start = Carbon::create($year, $month, 1);
         $end   = $start->copy()->endOfMonth();

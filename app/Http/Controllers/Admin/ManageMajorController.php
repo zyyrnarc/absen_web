@@ -1,6 +1,8 @@
 <?php
-namespace App\Http\Controllers;
 
+namespace App\Http\Controllers\Admin;
+
+use App\Http\Controllers\Controller;
 use App\Models\Major;
 use Illuminate\Http\Request;
 
@@ -20,24 +22,24 @@ class ManageMajorController extends Controller
 
     public function store(Request $request)
     {
-        $request->validate([
+        $validated = $request->validate([
             'name'          => 'required|string|max:255',
             'study_program' => 'nullable|string|max:255',
         ]);
 
-        Major::create($request->all());
+        Major::create($validated);
 
         return back()->with('success', 'Major berhasil ditambahkan!');
     }
 
     public function update(Request $request, Major $major)
     {
-        $request->validate([
+        $validated = $request->validate([
             'name'          => 'required|string|max:255',
             'study_program' => 'nullable|string|max:255',
         ]);
 
-        $major->update($request->all());
+        $major->update($validated);
 
         return back()->with('success', 'Major berhasil diupdate!');
     }

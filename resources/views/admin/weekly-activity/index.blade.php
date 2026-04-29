@@ -58,9 +58,7 @@
                     </td>
                     <td class="px-6 py-4 text-gray-600 font-medium">{{ $activity['day'] }}</td>
                     <td class="px-6 py-4 text-gray-600">{{ $activity['times'] }}</td>
-                    <td class="px-6 py-4">
-                        <button class="btn-view">View Activity</button>
-                    </td>
+                    <td class="px-6 py-4 text-gray-700">{{ $activity['activity'] }}</td>
                 </tr>
             @empty
                 <tr>

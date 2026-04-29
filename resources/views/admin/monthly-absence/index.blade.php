@@ -52,20 +52,20 @@
                             <td class="px-4 py-3">
                                 <div class="flex items-center gap-2">
                                     <div class="w-8 h-8 rounded-full bg-purple-100 flex items-center justify-center text-purple-600 font-bold text-xs flex-shrink-0">
-                                        {{ strtoupper(substr($att->student->name, 0, 1)) }}
+                                        {{ strtoupper(substr($att->user->name ?? $att->student->name ?? 'P', 0, 1)) }}
                                     </div>
-                                    <span class="font-medium text-gray-700">{{ $att->student->name }}</span>
+                                    <span class="font-medium text-gray-700">{{ $att->user->name ?? $att->student->name ?? 'Pengguna' }}</span>
                                 </div>
                             </td>
                             <td class="px-4 py-3 text-gray-500">
                                 {{ \Carbon\Carbon::parse($att->attendance_date)->format('d-M-Y') }}
                             </td>
                             <td class="px-4 py-3 text-gray-600">
-                                {{ $att->check_in ?? $att->time ?? '-' }}
+                                {{ $att->check_in_at?->format('H:i') ?? $att->time ?? '-' }}
                             </td>
                             <td class="px-4 py-3">
-                                @if($att->check_out)
-                                    <span class="text-gray-600">{{ $att->check_out }}</span>
+                                @if($att->check_out_at)
+                                    <span class="text-gray-600">{{ $att->check_out_at->format('H:i') }}</span>
                                 @else
                                     <span class="badge-pending">Pending</span>
                                 @endif

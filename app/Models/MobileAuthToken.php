@@ -6,29 +6,22 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-class Permit extends Model
+class MobileAuthToken extends Model
 {
     use HasFactory;
 
     protected $fillable = [
-        'student_id',
         'user_id',
-        'type',
-        'permit_date',
-        'reason',
-        'attachment_path',
-        'attachment_original_name',
-        'status',
+        'name',
+        'token',
+        'last_used_at',
+        'expires_at',
     ];
 
     protected $casts = [
-        'permit_date' => 'date',
+        'last_used_at' => 'datetime',
+        'expires_at' => 'datetime',
     ];
-
-    public function student(): BelongsTo
-    {
-        return $this->belongsTo(Student::class);
-    }
 
     public function user(): BelongsTo
     {
