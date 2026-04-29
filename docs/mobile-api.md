@@ -39,6 +39,13 @@ Artinya:
 
 ```text
 php artisan migrate
+php artisan db:seed
+php artisan storage:link
+```
+
+Atau jika hanya ingin akun contoh mobile tanpa master data tambahan:
+
+```text
 php artisan db:seed --class=AdminAndInternSeeder
 php artisan storage:link
 ```
@@ -49,6 +56,12 @@ Akun contoh:
 Admin  : admin@absen-web.test / password
 Intern : intern@absen-web.test / password
 ```
+
+Seeder default juga menambahkan data contoh:
+
+- absensi beberapa hari kerja
+- aktivitas mingguan contoh
+- permit `pending` dan `approved`
 
 ## Header
 
