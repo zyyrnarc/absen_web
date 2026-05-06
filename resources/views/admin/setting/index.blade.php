@@ -18,7 +18,7 @@
             <span class="panel-eyebrow">Company Setting</span>
             <h2 class="panel-title">Atur company name, logo, dan address</h2>
             <p class="panel-subtitle">
-                Perubahan di halaman ini akan dipakai sebagai identitas perusahaan pada panel admin.
+                Perubahan di halaman ini akan dipakai sebagai identitas perusahaan pada panel admin, termasuk foto profil yang tampil di header.
             </p>
 
             <form action="{{ route('setting.update') }}" method="POST" enctype="multipart/form-data" class="settings-form settings-stack">

@@ -14,10 +14,7 @@ class ProfileController extends Controller
 {
     public function showProfile()
     {
-        $admin = Auth::guard('admin')->user();
-        $setting = AppSetting::query()->first();
-
-        return view('admin.profile.index', compact('admin', 'setting'));
+        return redirect()->route('setting');
     }
 
     public function updateProfile(Request $request)

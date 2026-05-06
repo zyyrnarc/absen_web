@@ -11,7 +11,6 @@ class Student extends Model {
         'campus',
         'mentor',
         'email',
-        'username',
         'password',
         'status',
     ];

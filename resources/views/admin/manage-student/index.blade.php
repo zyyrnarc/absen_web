@@ -30,9 +30,11 @@
     <table class="w-full text-sm">
         <thead>
             <tr class="bg-purple-100 text-purple-800 font-bold text-left">
+                <th class="px-5 py-3">Image</th>
                 <th class="px-5 py-3">Name</th>
                 <th class="px-5 py-3">NIM</th>
                 <th class="px-5 py-3">Major</th>
+                <th class="px-5 py-3">Gender</th>
                 <th class="px-5 py-3">Campus</th>
                 <th class="px-5 py-3">Mentor</th>
                 <th class="px-5 py-3">Password</th>
@@ -44,22 +46,23 @@
             @forelse($students as $student)
                 <tr class="border-t border-gray-100 hover:bg-gray-50 transition">
                     <td class="px-5 py-3">
-                        <div class="flex items-center gap-3">
-                            @if ($student->avatar_url)
-                                <img
-                                    src="{{ $student->avatar_url }}"
-                                    alt="Foto {{ $student->name }}"
-                                    class="w-9 h-9 rounded-full object-cover border border-slate-200 flex-shrink-0">
-                            @else
-                                <div class="w-9 h-9 rounded-full bg-purple-100 flex items-center justify-center text-purple-600 font-bold text-xs flex-shrink-0">
-                                    {{ strtoupper(substr($student->name, 0, 1)) }}
-                                </div>
-                            @endif
-                            <span class="font-medium text-gray-700">{{ $student->name }}</span>
-                        </div>
+                        @if ($student->avatar_url)
+                            <img
+                                src="{{ $student->avatar_url }}"
+                                alt="Foto {{ $student->name }}"
+                                class="w-12 h-12 rounded-2xl object-cover border border-slate-200 shadow-sm">
+                        @else
+                            <div class="w-12 h-12 rounded-2xl bg-purple-100 flex items-center justify-center text-purple-600 font-bold text-sm">
+                                {{ strtoupper(substr($student->name, 0, 1)) }}
+                            </div>
+                        @endif
+                    </td>
+                    <td class="px-5 py-3">
+                        <span class="font-medium text-gray-700">{{ $student->name }}</span>
                     </td>
                     <td class="px-5 py-3 text-gray-600">{{ $student->nim ?? '-' }}</td>
                     <td class="px-5 py-3 text-gray-600">{{ $student->major ?? '-' }}</td>
+                    <td class="px-5 py-3 text-gray-600">{{ $student->gender ?? '-' }}</td>
                     <td class="px-5 py-3 text-gray-600">{{ $student->campus ?? '-' }}</td>
                     <td class="px-5 py-3 text-gray-600">{{ $student->mentor ?? '-' }}</td>
                     <td class="px-5 py-3 text-gray-600">{{ $student->password }}</td>
@@ -84,14 +87,14 @@
                 </tr>
             @empty
                 <tr>
-                    <td colspan="8" class="px-5 py-8 text-center text-gray-400">Belum ada data mahasiswa</td>
+                    <td colspan="10" class="px-5 py-8 text-center text-gray-400">Belum ada data mahasiswa</td>
                 </tr>
             @endforelse
         </tbody>
     </table>
 </div>
 
-<div id="modalAddStudent" class="modal-corner hidden" style="width: 420px; max-width: calc(100vw - 32px);">
+<div id="modalAddStudent" class="modal-corner modal-student hidden">
     <h2>Add Student</h2>
     @include('admin.manage-student.partials.form', [
         'formAction' => route('manage-student.store'),

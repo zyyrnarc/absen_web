@@ -88,7 +88,6 @@ class MobileAuthController extends Controller
             'name' => $user->name,
             'initial' => Str::upper(Str::substr($user->name, 0, 1)),
             'email' => $user->email,
-            'username' => $user->username,
             'phone' => $user->phone,
             'role' => $user->role,
             'is_active' => $user->is_active,

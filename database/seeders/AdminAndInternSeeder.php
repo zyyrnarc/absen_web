@@ -102,7 +102,6 @@ class AdminAndInternSeeder extends Seeder
                     'campus' => $sampleCampusName,
                     'mentor' => $sampleMentorName,
                     'email' => $internEmail,
-                    'username' => null,
                     'password' => Hash::make('password'),
                     'status' => 'active',
                     'created_at' => $now,

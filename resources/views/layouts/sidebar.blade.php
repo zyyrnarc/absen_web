@@ -10,8 +10,7 @@
         <a href="{{ route('manage-major') }}" class="sidebar-link {{ request()->routeIs('manage-major') ? 'active' : '' }}"><span class="sidebar-icon">J</span> Manage Major</a>
         <a href="{{ route('manage-campus') }}" class="sidebar-link {{ request()->routeIs('manage-campus*') ? 'active' : '' }}"><span class="sidebar-icon">C</span> Manage Campus</a>
         <a href="{{ route('manage-mentor') }}" class="sidebar-link {{ request()->routeIs('manage-mentor*') ? 'active' : '' }}"><span class="sidebar-icon">T</span> Manage Mentor</a>
-        <a href="{{ route('profile') }}" class="sidebar-link {{ request()->routeIs('profile') ? 'active' : '' }}"><span class="sidebar-icon">P</span> Profile</a>
-        <a href="{{ route('setting') }}" class="sidebar-link {{ request()->routeIs('setting') ? 'active' : '' }}"><span class="sidebar-icon">G</span> Setting</a>
+        <a href="{{ route('setting') }}" class="sidebar-link {{ request()->routeIs('setting*') || request()->routeIs('profile') ? 'active' : '' }}"><span class="sidebar-icon">G</span> Setting</a>
         <div class="flex-1"></div>
         <form method="POST" action="{{ route('logout') }}" class="mt-4">
             @csrf

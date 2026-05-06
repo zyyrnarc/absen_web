@@ -11,6 +11,11 @@ use Illuminate\Validation\Rule;
 
 class ManageStudentController extends Controller
 {
+    private const GENDER_OPTIONS = [
+        'Male',
+        'Female',
+    ];
+
     public function index()
     {
         $search   = request('search');
@@ -22,12 +27,12 @@ class ManageStudentController extends Controller
                     $builder
                         ->where('name', 'like', "%{$search}%")
                         ->orWhere('email', 'like', "%{$search}%")
-                        ->orWhere('username', 'like', "%{$search}%")
                         ->orWhereHas('profile', function ($profileQuery) use ($search) {
                             $profileQuery
                                 ->where('student_id', 'like', "%{$search}%")
                                 ->orWhere('major', 'like', "%{$search}%")
-                                ->orWhere('institution_name', 'like', "%{$search}%");
+                                ->orWhere('institution_name', 'like', "%{$search}%")
+                                ->orWhere('gender', 'like', "%{$search}%");
                         });
                 });
             })
@@ -52,8 +57,8 @@ class ManageStudentController extends Controller
             'study_program' => 'nullable|string',
             'campus'        => 'required|string|max:255',
             'mentor'        => 'nullable|string|max:255',
+            'gender'        => ['required', 'string', Rule::in(self::GENDER_OPTIONS)],
             'email'         => 'required|email|unique:users,email',
-            'username'      => 'nullable|string|max:255|unique:users,username',
             'password'      => 'required|string|min:6|max:255',
             'avatar'        => 'nullable|image|max:4096',
         ]);
@@ -62,7 +67,6 @@ class ManageStudentController extends Controller
             $user = User::query()->create([
                 'name' => $validated['name'],
                 'email' => $validated['email'],
-                'username' => $validated['username'] ?? null,
                 'password' => $validated['password'],
                 'role' => 'intern',
                 'is_active' => true,
@@ -77,6 +81,7 @@ class ManageStudentController extends Controller
                 'major' => $validated['major'],
                 'study_program' => $validated['study_program'] ?? null,
                 'supervisor_name' => $validated['mentor'] ?? null,
+                'gender' => $validated['gender'],
                 'status' => 'active',
             ]);
         });
@@ -105,8 +110,8 @@ class ManageStudentController extends Controller
             'study_program' => 'nullable|string',
             'campus'        => 'required|string|max:255',
             'mentor'        => 'nullable|string|max:255',
+            'gender'        => ['required', 'string', Rule::in(self::GENDER_OPTIONS)],
             'email'         => ['required', 'email', Rule::unique('users', 'email')->ignore($user->id)],
-            'username'      => ['nullable', 'string', 'max:255', Rule::unique('users', 'username')->ignore($user->id)],
             'password'      => 'nullable|string|min:6|max:255',
             'status'        => 'in:active,inactive',
             'avatar'        => 'nullable|image|max:4096',
@@ -116,7 +121,6 @@ class ManageStudentController extends Controller
             $userPayload = [
                 'name' => $validated['name'],
                 'email' => $validated['email'],
-                'username' => $validated['username'] ?? null,
                 'is_active' => ($validated['status'] ?? 'active') === 'active',
             ];
 
@@ -142,6 +146,7 @@ class ManageStudentController extends Controller
                     'major' => $validated['major'],
                     'study_program' => $validated['study_program'] ?? null,
                     'supervisor_name' => $validated['mentor'] ?? null,
+                    'gender' => $validated['gender'],
                     'status' => $validated['status'] ?? 'active',
                 ]
             );
@@ -183,8 +188,8 @@ class ManageStudentController extends Controller
             'study_program' => $user->profile?->study_program,
             'campus' => $user->profile?->institution_name,
             'mentor' => $user->profile?->supervisor_name,
+            'gender' => $user->profile?->gender,
             'email' => $user->email,
-            'username' => $user->username,
             'password' => 'Tersimpan aman',
             'status' => $user->is_active ? 'active' : 'inactive',
             'avatar_path' => $user->avatar_path,
