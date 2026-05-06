@@ -62,6 +62,7 @@
 
     $logoUrl = $setting?->company_logo_path ? Storage::url($setting->company_logo_path) : null;
     $avatarLetter = strtoupper(substr($admin?->name ?? 'A', 0, 1));
+    $adminAvatarUrl = $admin?->avatar_path ? Storage::url($admin->avatar_path) : null;
 @endphp
 
 <header class="top-header">
@@ -73,7 +74,7 @@
         </div>
 
         <div class="dashboard-header-side">
-            <a href="{{ route('setting') }}" class="admin-profile">
+            <a href="{{ route('profile') }}" class="admin-profile">
                 @if ($logoUrl)
                     <img src="{{ $logoUrl }}" alt="Company Logo" class="admin-company-logo">
                 @endif
@@ -81,7 +82,11 @@
                     <p class="admin-profile-name">{{ $admin?->name ?? 'Admin Devgen' }}</p>
                     <p class="admin-profile-role">{{ $setting?->company_name ?? 'Administrator' }}</p>
                 </div>
-                <div class="admin-avatar">{{ $avatarLetter }}</div>
+                @if ($adminAvatarUrl)
+                    <img src="{{ $adminAvatarUrl }}" alt="Foto admin" class="admin-avatar object-cover">
+                @else
+                    <div class="admin-avatar">{{ $avatarLetter }}</div>
+                @endif
             </a>
         </div>
     </div>

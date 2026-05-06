@@ -143,6 +143,7 @@ Response sukses:
     "phone": "081200000002",
     "role": "intern",
     "is_active": true,
+    "avatar_path": null,
     "avatar_url": null,
     "profile": {
       "student_id": "MAGANG-001",
@@ -192,6 +193,8 @@ Contoh response:
     "phone": "081200000002",
     "role": "intern",
     "is_active": true,
+    "avatar_path": null,
+    "avatar_url": null,
     "profile": {
       "student_id": "MAGANG-001",
       "institution_name": "Politeknik Negeri Indramayu",
@@ -229,6 +232,8 @@ Layar `Profile`, `Edit Profile`, dan `Reset Password` memakai database admin yan
 
 Dipakai untuk layar Profile.
 
+URL foto profil yang siap dipakai aplikasi tersedia di `user.avatar_url`. Jika frontend juga perlu path file yang tersimpan di backend, gunakan `user.avatar_path`.
+
 Contoh response:
 
 ```json
@@ -242,6 +247,7 @@ Contoh response:
     "phone": "08123456789",
     "role": "intern",
     "is_active": true,
+    "avatar_path": null,
     "avatar_url": null,
     "profile": {
       "student_id": "2305055",

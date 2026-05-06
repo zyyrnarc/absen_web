@@ -134,6 +134,7 @@ class MobileProfileController extends Controller
             'phone' => $user->phone,
             'role' => $user->role,
             'is_active' => $user->is_active,
+            'avatar_path' => $user->avatar_path,
             'avatar_url' => $user->avatar_path ? Storage::disk('public')->url($user->avatar_path) : null,
             'profile' => [
                 'student_id' => $user->profile?->student_id,

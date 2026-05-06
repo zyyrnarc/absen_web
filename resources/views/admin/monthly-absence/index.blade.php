@@ -17,7 +17,11 @@
         <p class="text-4xl font-extrabold">{{ $waitingPermit }}</p>
     </div>
     <div class="stat-grid-action">
-        <a href="#" class="btn-pdf">PDF</a>
+        <a
+            href="{{ route('monthly-absence.export', ['month' => $selectedMonth, 'year' => $selectedYear, 'search' => $search]) }}"
+            target="_blank"
+            rel="noopener"
+            class="btn-pdf">PDF</a>
     </div>
 </div>
 

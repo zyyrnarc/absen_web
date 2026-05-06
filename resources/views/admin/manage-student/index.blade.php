@@ -45,9 +45,16 @@
                 <tr class="border-t border-gray-100 hover:bg-gray-50 transition">
                     <td class="px-5 py-3">
                         <div class="flex items-center gap-3">
-                            <div class="w-9 h-9 rounded-full bg-purple-100 flex items-center justify-center text-purple-600 font-bold text-xs flex-shrink-0">
-                                {{ strtoupper(substr($student->name, 0, 1)) }}
-                            </div>
+                            @if ($student->avatar_url)
+                                <img
+                                    src="{{ $student->avatar_url }}"
+                                    alt="Foto {{ $student->name }}"
+                                    class="w-9 h-9 rounded-full object-cover border border-slate-200 flex-shrink-0">
+                            @else
+                                <div class="w-9 h-9 rounded-full bg-purple-100 flex items-center justify-center text-purple-600 font-bold text-xs flex-shrink-0">
+                                    {{ strtoupper(substr($student->name, 0, 1)) }}
+                                </div>
+                            @endif
                             <span class="font-medium text-gray-700">{{ $student->name }}</span>
                         </div>
                     </td>

@@ -20,6 +20,32 @@ class ProfileController extends Controller
         return view('admin.profile.index', compact('admin', 'setting'));
     }
 
+    public function updateProfile(Request $request)
+    {
+        $admin = Auth::guard('admin')->user();
+
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|max:255|unique:users,email,'.$admin->id,
+            'phone' => 'nullable|string|max:30',
+            'avatar' => 'nullable|image|max:4096',
+        ]);
+
+        if ($request->hasFile('avatar')) {
+            if ($admin->avatar_path) {
+                Storage::disk('public')->delete($admin->avatar_path);
+            }
+
+            $validated['avatar_path'] = $request->file('avatar')->store('admin-avatars', 'public');
+        }
+
+        unset($validated['avatar']);
+
+        $admin->update($validated);
+
+        return back()->with('success', 'Profil admin berhasil diperbarui.');
+    }
+
     public function showSetting()
     {
         $admin = Auth::guard('admin')->user();

@@ -51,6 +51,8 @@ Route::prefix('admin')->group(function () {
 
         Route::get('/weekly-activity', [WeeklyActivityController::class, 'index'])
             ->name('weekly-activity');
+        Route::get('/weekly-activity/export', [WeeklyActivityController::class, 'export'])
+            ->name('weekly-activity.export');
 
         Route::get('/manage-student', [ManageStudentController::class, 'index'])
             ->name('manage-student');
@@ -93,8 +95,11 @@ Route::prefix('admin')->group(function () {
             ->name('manage-mentor.destroy');
 
         Route::get('/profile', [ProfileController::class, 'showProfile'])->name('profile');
+        Route::put('/profile', [ProfileController::class, 'updateProfile'])->name('profile.update');
         Route::get('/setting', [ProfileController::class, 'showSetting'])->name('setting');
         Route::put('/setting/company', [ProfileController::class, 'updateSetting'])->name('setting.update');
         Route::put('/setting/password', [ProfileController::class, 'updatePassword'])->name('setting.password.update');
+        Route::get('/monthly-absence/export', [MonthlyAbsenceController::class, 'export'])
+            ->name('monthly-absence.export');
     });
 });

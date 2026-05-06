@@ -11,6 +11,7 @@ use App\Support\MobileApiAuth;
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
 class MobileDashboardController extends Controller
@@ -83,6 +84,8 @@ class MobileDashboardController extends Controller
                 'phone' => $user->phone,
                 'role' => $user->role,
                 'is_active' => $user->is_active,
+                'avatar_path' => $user->avatar_path,
+                'avatar_url' => $user->avatar_path ? Storage::disk('public')->url($user->avatar_path) : null,
                 'profile' => [
                     'student_id' => $user->profile?->student_id,
                     'institution_name' => $user->profile?->institution_name,

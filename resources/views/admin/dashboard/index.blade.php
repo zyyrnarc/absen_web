@@ -5,20 +5,20 @@
 {{-- STAT CARDS --}}
 <div class="flex gap-4 mb-6 items-start">
 
-    <div class="stat-card bg-card-purple text-white rounded-2xl px-6 py-4 flex-1 shadow-md">
+    <a href="{{ route('manage-campus') }}" class="stat-card bg-card-purple text-white rounded-2xl px-6 py-4 flex-1 shadow-md block transition hover:-translate-y-0.5 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-white/60">
         <p class="text-xs font-semibold uppercase tracking-wider opacity-80 mb-1">Total Campus</p>
         <p class="text-4xl font-extrabold">{{ $totalCampus }}</p>
-    </div>
+    </a>
 
-    <div class="stat-card bg-card-pink text-white rounded-2xl px-6 py-4 flex-1 shadow-md">
+    <a href="{{ route('manage-student') }}" class="stat-card bg-card-pink text-white rounded-2xl px-6 py-4 flex-1 shadow-md block transition hover:-translate-y-0.5 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-white/60">
         <p class="text-xs font-semibold uppercase tracking-wider opacity-80 mb-1">Total Mahasiswa</p>
         <p class="text-4xl font-extrabold">{{ $totalMahasiswa }}</p>
-    </div>
+    </a>
 
-    <div class="stat-card bg-card-red text-white rounded-2xl px-6 py-4 flex-1 shadow-md">
+    <a href="{{ route('manage-mentor') }}" class="stat-card bg-card-red text-white rounded-2xl px-6 py-4 flex-1 shadow-md block transition hover:-translate-y-0.5 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-white/60">
         <p class="text-xs font-semibold uppercase tracking-wider opacity-80 mb-1">Total Mentor</p>
         <p class="text-4xl font-extrabold">{{ $totalMentor }}</p>
-    </div>
+    </a>
 
     <div class="notification-box flex-1 bg-white rounded-2xl p-3 shadow-md border border-purple-100">
         <div class="text-2xl mb-1">🔔</div>

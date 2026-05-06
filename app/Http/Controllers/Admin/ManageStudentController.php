@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
 
 class ManageStudentController extends Controller
@@ -54,9 +55,10 @@ class ManageStudentController extends Controller
             'email'         => 'required|email|unique:users,email',
             'username'      => 'nullable|string|max:255|unique:users,username',
             'password'      => 'required|string|min:6|max:255',
+            'avatar'        => 'nullable|image|max:4096',
         ]);
 
-        DB::transaction(function () use ($validated): void {
+        DB::transaction(function () use ($request, $validated): void {
             $user = User::query()->create([
                 'name' => $validated['name'],
                 'email' => $validated['email'],
@@ -64,6 +66,9 @@ class ManageStudentController extends Controller
                 'password' => $validated['password'],
                 'role' => 'intern',
                 'is_active' => true,
+                'avatar_path' => $request->hasFile('avatar')
+                    ? $request->file('avatar')->store('student-avatars', 'public')
+                    : null,
             ]);
 
             $user->profile()->create([
@@ -104,9 +109,10 @@ class ManageStudentController extends Controller
             'username'      => ['nullable', 'string', 'max:255', Rule::unique('users', 'username')->ignore($user->id)],
             'password'      => 'nullable|string|min:6|max:255',
             'status'        => 'in:active,inactive',
+            'avatar'        => 'nullable|image|max:4096',
         ]);
 
-        DB::transaction(function () use ($user, $validated): void {
+        DB::transaction(function () use ($request, $user, $validated): void {
             $userPayload = [
                 'name' => $validated['name'],
                 'email' => $validated['email'],
@@ -116,6 +122,14 @@ class ManageStudentController extends Controller
 
             if (! empty($validated['password'])) {
                 $userPayload['password'] = $validated['password'];
+            }
+
+            if ($request->hasFile('avatar')) {
+                if ($user->avatar_path) {
+                    Storage::disk('public')->delete($user->avatar_path);
+                }
+
+                $userPayload['avatar_path'] = $request->file('avatar')->store('student-avatars', 'public');
             }
 
             $user->update($userPayload);
@@ -140,7 +154,13 @@ class ManageStudentController extends Controller
 
     public function destroy(int $student)
     {
-        $this->findInternOrFail($student)->delete();
+        $user = $this->findInternOrFail($student);
+
+        if ($user->avatar_path) {
+            Storage::disk('public')->delete($user->avatar_path);
+        }
+
+        $user->delete();
 
         return back()->with('success', 'Mahasiswa berhasil dihapus!');
     }
@@ -167,6 +187,8 @@ class ManageStudentController extends Controller
             'username' => $user->username,
             'password' => 'Tersimpan aman',
             'status' => $user->is_active ? 'active' : 'inactive',
+            'avatar_path' => $user->avatar_path,
+            'avatar_url' => $user->avatar_path ? Storage::disk('public')->url($user->avatar_path) : null,
         ];
     }
 }
