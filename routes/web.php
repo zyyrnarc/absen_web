@@ -41,7 +41,7 @@ Route::prefix('admin')->group(function () {
         Route::patch('/permits/{id}/approve', [DashboardController::class, 'approvePermit'])
             ->name('permit.approve');
         Route::get('/permits', function () {
-            return redirect()->route('dashboard');
+            return redirect()->route('monthly-absence');
         })->name('permits');
 
         Route::get('/monthly-absence', [MonthlyAbsenceController::class, 'index'])

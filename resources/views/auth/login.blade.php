@@ -213,6 +213,18 @@
       background: rgba(127, 29, 29, 0.28);
       border: 1px solid rgba(254, 202, 202, 0.18);
     }
+
+    .hint-box {
+      color: var(--muted);
+      text-align: center;
+      margin-bottom: 14px;
+      font-size: .82rem;
+      line-height: 1.55;
+      padding: .85rem 1rem;
+      border-radius: 14px;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(191, 214, 255, 0.14);
+    }
   </style>
 </head>
 <body>
@@ -231,11 +243,11 @@
     @csrf
 
     <div class="form-group">
-      <input type="email" name="email" placeholder="Email" required />
+      <input type="email" name="email" value="{{ old('email') }}" placeholder="Email" autocomplete="username" required />
     </div>
 
     <div class="form-group">
-      <input type="password" name="password" placeholder="Password" required />
+      <input type="password" name="password" placeholder="Password" autocomplete="current-password" required />
     </div>
 
     <button class="btn-login" type="submit">

@@ -11,25 +11,50 @@ class AdminAndInternSeeder extends Seeder
     public function run(): void
     {
         $now = now();
+        $adminEmails = [
+            'admin@absen-web.test',
+            'admin@example.com',
+            'admin@gmail.com',
+        ];
+        $internEmail = 'intern@absen-web.test';
         $sampleCampusName = 'Universitas Contoh';
         $sampleMentorName = 'Pembimbing Lapangan';
 
-        DB::table('users')->updateOrInsert(
-            ['email' => 'admin@absen-web.test'],
-            [
-                'name' => 'Admin Absen',
-                'password' => Hash::make('password'),
-                'role' => 'admin',
-                'phone' => '081200000001',
-                'is_active' => true,
-                'email_verified_at' => $now,
-                'created_at' => $now,
-                'updated_at' => $now,
-            ]
-        );
+        $legacyInternUserId = DB::table('users')->where('email', 'intern@gmail.com')->value('id');
+
+        if ($legacyInternUserId && ! DB::table('users')->where('email', $internEmail)->exists()) {
+            DB::table('users')
+                ->where('id', $legacyInternUserId)
+                ->update([
+                    'email' => $internEmail,
+                    'name' => 'Mahasiswa Magang',
+                    'password' => Hash::make('password'),
+                    'role' => 'intern',
+                    'phone' => '081200000002',
+                    'is_active' => true,
+                    'email_verified_at' => $now,
+                    'updated_at' => $now,
+                ]);
+        }
+
+        foreach ($adminEmails as $email) {
+            DB::table('users')->updateOrInsert(
+                ['email' => $email],
+                [
+                    'name' => 'Admin Absen',
+                    'password' => Hash::make('password'),
+                    'role' => 'admin',
+                    'phone' => '081200000001',
+                    'is_active' => true,
+                    'email_verified_at' => $now,
+                    'created_at' => $now,
+                    'updated_at' => $now,
+                ]
+            );
+        }
 
         DB::table('users')->updateOrInsert(
-            ['email' => 'intern@absen-web.test'],
+            ['email' => $internEmail],
             [
                 'name' => 'Mahasiswa Magang',
                 'password' => Hash::make('password'),
@@ -42,7 +67,7 @@ class AdminAndInternSeeder extends Seeder
             ]
         );
 
-        $internUserId = DB::table('users')->where('email', 'intern@absen-web.test')->value('id');
+        $internUserId = DB::table('users')->where('email', $internEmail)->value('id');
         $sampleCampusId = DB::table('campuses')->where('name', $sampleCampusName)->value('id');
         $sampleMentorId = DB::table('mentors')->where('name', $sampleMentorName)->value('id');
 
@@ -66,7 +91,7 @@ class AdminAndInternSeeder extends Seeder
             );
 
             DB::table('students')->updateOrInsert(
-                ['email' => 'intern@absen-web.test'],
+                ['email' => $internEmail],
                 [
                     'name' => 'Mahasiswa Magang',
                     'nim' => 'MAGANG-001',
@@ -76,7 +101,7 @@ class AdminAndInternSeeder extends Seeder
                     'mentor_id' => $sampleMentorId,
                     'campus' => $sampleCampusName,
                     'mentor' => $sampleMentorName,
-                    'email' => 'intern@absen-web.test',
+                    'email' => $internEmail,
                     'username' => null,
                     'password' => Hash::make('password'),
                     'status' => 'active',

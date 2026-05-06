@@ -112,7 +112,7 @@
                 <p class="text-sm text-gray-400 text-center py-4">Tidak ada permit pending</p>
             @endforelse
         </div>
-        <a href="{{ route('permits') }}" class="mt-4 block text-center text-sm text-purple-500 hover:underline font-semibold">
+        <a href="{{ route('monthly-absence') }}" class="mt-4 block text-center text-sm text-purple-500 hover:underline font-semibold">
             View all permit ....
         </a>
     </div>
