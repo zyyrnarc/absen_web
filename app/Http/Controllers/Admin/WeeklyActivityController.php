@@ -38,6 +38,17 @@ class WeeklyActivityController extends Controller
 
     private function formatActivityTimes(InternActivity $activity): string
     {
+        $startTime = $this->formatStoredTime($activity->start_time);
+        $endTime = $this->formatStoredTime($activity->end_time);
+
+        if ($startTime && $endTime) {
+            return "{$startTime} - {$endTime}";
+        }
+
+        if ($startTime) {
+            return "{$startTime} - Pending";
+        }
+
         $checkIn = $activity->attendance?->check_in_at?->format('H:i');
         $checkOut = $activity->attendance?->check_out_at?->format('H:i');
 
@@ -49,7 +60,20 @@ class WeeklyActivityController extends Controller
             return "{$checkIn} - Pending";
         }
 
+        if (! $activity->attendance_id) {
+            return '09:00 - 16:00';
+        }
+
         return '-';
+    }
+
+    private function formatStoredTime($time): ?string
+    {
+        if (! $time) {
+            return null;
+        }
+
+        return Carbon::parse($time)->format('H:i');
     }
 
     private function buildWeeklyActivityData(int $selectedMonth, int $selectedYear, $selectedStudent): array

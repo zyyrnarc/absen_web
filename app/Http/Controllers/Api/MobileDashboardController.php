@@ -49,6 +49,11 @@ class MobileDashboardController extends Controller
             ->whereBetween('permit_date', [now()->startOfMonth()->toDateString(), now()->endOfMonth()->toDateString()])
             ->count();
 
+        $todayPermit = Permit::query()
+            ->where('user_id', $user->id)
+            ->whereDate('permit_date', today())
+            ->first();
+
         $recentActivities = InternActivity::query()
             ->where('user_id', $user->id)
             ->latest('activity_date')
@@ -64,10 +69,16 @@ class MobileDashboardController extends Controller
             ])
             ->values();
 
-        $absentCount = max(
-            $this->countActiveWorkdaysInMonth($user) - $presentCount - $permitCount,
-            0
-        );
+        $storedAbsentCount = Attendance::query()
+            ->where('user_id', $user->id)
+            ->whereBetween('attendance_date', [now()->startOfMonth()->toDateString(), now()->endOfMonth()->toDateString()])
+            ->where('status', 'absent')
+            ->count();
+        $workdaysInMonth = $this->countActiveWorkdaysInMonth($user);
+        $shouldCountTodayAbsent = $this->shouldCountTodayAsAbsent($todayAttendance, $todayPermit);
+        $todayAbsentAlreadyStored = $todayAttendance?->status === 'absent';
+
+        $absentCount = $storedAbsentCount + ($shouldCountTodayAbsent && ! $todayAbsentAlreadyStored ? 1 : 0);
 
         return response()->json([
             'current_date' => [
@@ -102,10 +113,10 @@ class MobileDashboardController extends Controller
                 'present' => $presentCount,
                 'permit' => $permitCount,
                 'absent' => $absentCount,
-                'workdays' => $this->countActiveWorkdaysInMonth($user),
+                'workdays' => $workdaysInMonth,
             ],
             'quick_actions' => [
-                'can_check_in' => ! $todayAttendance?->check_in_at,
+                'can_check_in' => ! $todayAttendance?->check_in_at && ! $todayPermit && ! $shouldCountTodayAbsent,
                 'can_check_out' => (bool) $todayAttendance?->check_in_at && ! $todayAttendance?->check_out_at,
                 'can_submit_permit' => true,
                 'can_submit_activity' => true,
@@ -114,10 +125,10 @@ class MobileDashboardController extends Controller
         ]);
     }
 
-    private function countActiveWorkdaysInMonth(User $user): int
+    private function countActiveWorkdaysInMonth(User $user, ?Carbon $end = null): int
     {
         $start = now()->startOfMonth();
-        $end = now();
+        $end = $end ?: now();
 
         if ($user->profile?->internship_start instanceof Carbon && $user->profile->internship_start->greaterThan($start)) {
             $start = $user->profile->internship_start->copy();
@@ -143,6 +154,27 @@ class MobileDashboardController extends Controller
         }
 
         return $workdays;
+    }
+
+    private function shouldCountTodayAsAbsent(?Attendance $todayAttendance, ?Permit $todayPermit): bool
+    {
+        if ($todayAttendance?->check_in_at) {
+            return false;
+        }
+
+        if ($todayAttendance?->status === 'absent') {
+            return true;
+        }
+
+        if ($todayPermit) {
+            return false;
+        }
+
+        if (! today()->isWeekday()) {
+            return false;
+        }
+
+        return now()->greaterThanOrEqualTo(today()->setTime(16, 0));
     }
 
     private function transformAttendance(?Attendance $attendance): ?array

@@ -16,6 +16,8 @@ class UpdateInternActivityRequest extends FormRequest
         return [
             'attendance_id' => ['nullable', 'integer', 'exists:attendances,id'],
             'activity_date' => ['nullable', 'date'],
+            'start_time' => ['nullable', 'date_format:H:i'],
+            'end_time' => ['nullable', 'date_format:H:i'],
             'title' => ['sometimes', 'required', 'string', 'max:255'],
             'description' => ['sometimes', 'required', 'string'],
             'status' => ['nullable', 'in:draft,submitted'],

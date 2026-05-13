@@ -14,6 +14,8 @@ class InternActivity extends Model
         'user_id',
         'attendance_id',
         'activity_date',
+        'start_time',
+        'end_time',
         'title',
         'description',
         'status',

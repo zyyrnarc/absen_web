@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\StorePermitRequest;
 use App\Models\Permit;
+use App\Models\Student;
 use App\Support\MobileApiAuth;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -72,6 +73,7 @@ class MobilePermitController extends Controller
         $attachment = $request->file('attachment');
 
         $permit = Permit::query()->create([
+            'student_id' => $this->legacyStudentId($user),
             'user_id' => $user->id,
             'type' => $request->input('type'),
             'permit_date' => $request->input('permit_date', today()->toDateString()),
@@ -102,5 +104,31 @@ class MobilePermitController extends Controller
             ] : null,
             'created_at' => optional($permit->created_at)->toDateTimeString(),
         ];
+    }
+
+    private function legacyStudentId($user): ?int
+    {
+        $user->loadMissing('profile');
+
+        $student = Student::query()
+            ->where('email', $user->email)
+            ->when(
+                $user->profile?->student_id,
+                fn ($query, $studentId) => $query->orWhere('nim', $studentId)
+            )
+            ->first();
+
+        if ($student) {
+            return $student->id;
+        }
+
+        return Student::query()->create([
+            'name' => $user->name,
+            'nim' => $user->profile?->student_id,
+            'major' => $user->profile?->major,
+            'study_program' => $user->profile?->study_program,
+            'email' => $user->email,
+            'status' => $user->is_active ? 'active' : 'inactive',
+        ])->id;
     }
 }

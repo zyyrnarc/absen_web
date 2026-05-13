@@ -7,6 +7,7 @@
     <div class="stat-card bg-card-purple text-white rounded-2xl px-6 py-4 shadow-md">
         <p class="text-xs font-semibold uppercase opacity-80 mb-1">Total Workdays</p>
         <p class="text-4xl font-extrabold">{{ $totalWorkdays }} Days</p>
+        <p class="text-xs font-semibold opacity-70 mt-1">{{ $months[$selectedMonth] }} {{ $selectedYear }}</p>
     </div>
     <div class="stat-card bg-card-pink text-white rounded-2xl px-6 py-4 shadow-md">
         <p class="text-xs font-semibold uppercase opacity-80 mb-1">Present Today</p>
@@ -90,7 +91,7 @@
                 <div class="flex items-center gap-1">
                     <label class="text-xs text-gray-500 font-semibold">Years</label>
                     <select name="year" class="filter-select" onchange="this.form.submit()">
-                        @foreach([2024,2025,2026] as $y)
+                        @foreach($years as $y)
                             <option value="{{ $y }}" {{ $selectedYear == $y ? 'selected' : '' }}>{{ $y }}</option>
                         @endforeach
                     </select>

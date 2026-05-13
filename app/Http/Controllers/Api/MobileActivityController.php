@@ -5,8 +5,10 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\StoreInternActivityRequest;
 use App\Http\Requests\Api\UpdateInternActivityRequest;
+use App\Models\AppSetting;
 use App\Models\Attendance;
 use App\Models\InternActivity;
+use App\Models\Mentor;
 use App\Support\MobileApiAuth;
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
@@ -103,6 +105,19 @@ class MobileActivityController extends Controller
 
         $weekStart = $referenceDate->copy()->startOfWeek(Carbon::MONDAY);
         $weekEnd = $referenceDate->copy()->endOfWeek(Carbon::FRIDAY);
+        $profile = $user->profile;
+        $setting = AppSetting::query()->first();
+        $industryName = $user->industry_name
+            ?: ($setting?->company_name ?: ($profile?->division ?: '-'));
+        [$mentorName, $mentorPosition] = $this->signatureSupervisor(
+            $user->mentor_name ?: $profile?->supervisor_name,
+            $user->mentor_position
+        );
+        $weekNumber = $this->reportWeekNumber(
+            $user->id,
+            $profile?->internship_start,
+            $weekStart
+        );
 
         $items = InternActivity::query()
             ->with('attendance')
@@ -121,10 +136,23 @@ class MobileActivityController extends Controller
                 'filename' => 'weekly-activity-'.$user->id.'-'.$weekStart->format('Y-m-d').'.pdf',
                 'generated_at' => now()->toDateTimeString(),
                 'student' => [
-                    'name' => $user->name,
-                    'email' => $user->email,
+                    'nim' => $user->nim ?: ($profile?->student_id ?: '-'),
+                    'name' => $user->name ?: '-',
+                    'email' => $user->email ?: '-',
+                    'department' => $user->department ?: ($profile?->major ?: '-'),
+                    'study_program' => $user->study_program ?: ($profile?->study_program ?: '-'),
+                ],
+
+                'industry' => [
+                    'name' => $industryName,
+                ],
+
+                'mentor' => [
+                    'name' => $mentorName,
+                    'position' => $mentorPosition,
                 ],
                 'period' => [
+                    'week_number' => $weekNumber,
                     'start_date' => $weekStart->toDateString(),
                     'end_date' => $weekEnd->toDateString(),
                     'label' => $weekStart->locale('en')->translatedFormat('F j, Y').' - '.$weekEnd->locale('en')->translatedFormat('F j, Y'),
@@ -157,6 +185,8 @@ class MobileActivityController extends Controller
             'user_id' => $user->id,
             'attendance_id' => $attendanceId,
             'activity_date' => $request->input('activity_date', today()->toDateString()),
+            'start_time' => $request->filled('start_time') ? $request->input('start_time') : '09:00',
+            'end_time' => $request->filled('end_time') ? $request->input('end_time') : '16:00',
             'title' => $request->input('title'),
             'description' => $request->input('description'),
             'status' => $request->input('status', 'submitted'),
@@ -190,7 +220,17 @@ class MobileActivityController extends Controller
             ], 422);
         }
 
-        $activityModel->fill($request->validated())->save();
+        $data = $request->validated();
+
+        if (! $request->filled('start_time') && ! $activityModel->start_time) {
+            $data['start_time'] = '09:00';
+        }
+
+        if (! $request->filled('end_time') && ! $activityModel->end_time) {
+            $data['end_time'] = '16:00';
+        }
+
+        $activityModel->fill($data)->save();
 
         return response()->json([
             'message' => 'Aktivitas berhasil diperbarui.',
@@ -229,14 +269,24 @@ class MobileActivityController extends Controller
 
     private function transformActivity(InternActivity $activity): array
     {
+        $startTime = $this->formatStoredTime($activity->start_time);
+        $endTime = $this->formatStoredTime($activity->end_time);
+
+        if (! $activity->attendance_id) {
+            $startTime ??= '09:00';
+            $endTime ??= '16:00';
+        }
+
         return [
             'id' => $activity->id,
             'attendance_id' => $activity->attendance_id,
             'activity_date' => optional($activity->activity_date)->toDateString(),
-            'activity_day' => $activity->activity_date?->locale('en')->translatedFormat('l'),
-            'title' => $activity->title,
-            'description' => $activity->description,
-            'status' => $activity->status,
+            'activity_day' => $activity->activity_date?->locale('en')->translatedFormat('l') ?? '-',
+            'start_time' => $startTime ?? '-',
+            'end_time' => $endTime ?? '-',
+            'title' => $activity->title ?? '-',
+            'description' => $activity->description ?? '-',
+            'status' => $activity->status ?? '-',
             'times' => $this->formatTimes($activity),
             'can_edit' => true,
             'can_delete' => true,
@@ -247,6 +297,17 @@ class MobileActivityController extends Controller
 
     private function formatTimes(InternActivity $activity): ?string
     {
+        $startTime = $this->formatStoredTime($activity->start_time);
+        $endTime = $this->formatStoredTime($activity->end_time);
+
+        if ($startTime && $endTime) {
+            return "{$startTime} - {$endTime}";
+        }
+
+        if ($startTime) {
+            return "{$startTime} - Pending";
+        }
+
         $checkIn = $activity->attendance?->check_in_at?->format('H:i');
         $checkOut = $activity->attendance?->check_out_at?->format('H:i');
 
@@ -258,6 +319,65 @@ class MobileActivityController extends Controller
             return "{$checkIn} - Pending";
         }
 
+        if (! $activity->attendance_id) {
+            return '09:00 - 16:00';
+        }
+
         return null;
+    }
+
+    private function formatStoredTime($time): ?string
+    {
+        if (! $time) {
+            return null;
+        }
+
+        return Carbon::parse($time)->format('H:i');
+    }
+
+    private function signatureSupervisor(?string $supervisorName, ?string $fallbackPosition = null): array
+    {
+        $name = trim((string) $supervisorName);
+        $mentor = $name !== ''
+            ? Mentor::query()->where('name', $name)->first()
+            : null;
+
+        if (! $mentor && $name !== '') {
+            $mentor = Mentor::query()
+                ->where('name', 'like', '%'.$name.'%')
+                ->first();
+        }
+
+        return [
+            $mentor?->name ?: ($name !== '' ? $name : '-'),
+            $mentor?->position ?: ($fallbackPosition ?: '-'),
+        ];
+    }
+
+    private function reportWeekNumber(int $userId, $internshipStart, Carbon $weekStart): int
+    {
+        $startDate = $internshipStart ? Carbon::parse($internshipStart) : null;
+
+        if (! $startDate) {
+            $firstActivityDate = InternActivity::query()
+                ->where('user_id', $userId)
+                ->min('activity_date');
+
+            if ($firstActivityDate) {
+                $startDate = Carbon::parse($firstActivityDate);
+            }
+        }
+
+        if (! $startDate) {
+            return 1;
+        }
+
+        $firstWeekStart = $startDate->copy()->startOfWeek(Carbon::MONDAY);
+
+        if ($weekStart->lessThan($firstWeekStart)) {
+            return 1;
+        }
+
+        return ((int) $firstWeekStart->diffInWeeks($weekStart)) + 1;
     }
 }

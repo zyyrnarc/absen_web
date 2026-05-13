@@ -12,7 +12,7 @@ class MonthlyAbsenceController extends Controller
 {
     public function index()
     {
-        $selectedMonth = (int) request('month', now()->month);
+        $selectedMonth = max(1, min(12, (int) request('month', now()->month)));
         $selectedYear  = (int) request('year', now()->year);
         $search        = (string) request('search', '');
 
@@ -25,7 +25,7 @@ class MonthlyAbsenceController extends Controller
 
     public function export()
     {
-        $selectedMonth = (int) request('month', now()->month);
+        $selectedMonth = max(1, min(12, (int) request('month', now()->month)));
         $selectedYear = (int) request('year', now()->year);
         $search = (string) request('search', '');
         $setting = AppSetting::query()->first();
@@ -45,21 +45,30 @@ class MonthlyAbsenceController extends Controller
         return back()->with('success', "Permit berhasil di-approve.");
     }
 
-    private function countWorkdays(int $year, int $month): int
+    private function availableYears(): array
     {
-        $start = Carbon::create($year, $month, 1);
-        $end   = $start->copy()->endOfMonth();
-        $count = 0;
-        while ($start->lte($end)) {
-            if ($start->isWeekday()) $count++;
-            $start->addDay();
-        }
-        return $count;
+        $attendanceYears = Attendance::query()
+            ->whereNotNull('attendance_date')
+            ->pluck('attendance_date')
+            ->map(fn ($date) => Carbon::parse($date)->year);
+
+        $permitYears = Permit::query()
+            ->whereNotNull('permit_date')
+            ->pluck('permit_date')
+            ->map(fn ($date) => Carbon::parse($date)->year);
+
+        return $attendanceYears
+            ->merge($permitYears)
+            ->push(now()->year)
+            ->map(fn ($year) => (int) $year)
+            ->unique()
+            ->sort()
+            ->values()
+            ->toArray();
     }
 
     private function buildMonthlyAbsenceData(int $selectedMonth, int $selectedYear, string $search): array
     {
-        $totalWorkdays = $this->countWorkdays($selectedYear, $selectedMonth);
         $presentToday = Attendance::whereDate('attendance_date', today())
             ->where(function ($query) {
                 $query->whereNotNull('check_in_at')
@@ -81,6 +90,10 @@ class MonthlyAbsenceController extends Controller
             ->latest('attendance_date')
             ->get();
 
+        $totalWorkdays = $attendances
+            ->filter(fn (Attendance $attendance) => $attendance->check_in_at || $attendance->time)
+            ->count();
+
         $pendingPermits = Permit::where('status', 'pending')
             ->with(['user', 'student'])
             ->latest('permit_date')
@@ -93,6 +106,8 @@ class MonthlyAbsenceController extends Controller
                 'date' => Carbon::parse($permit->permit_date)->locale('id')->isoFormat('D MMMM YYYY'),
             ])
             ->toArray();
+
+        $years = $this->availableYears();
 
         $months = [
             1 => 'Januari', 2 => 'Februari', 3 => 'Maret', 4 => 'April',
@@ -107,6 +122,7 @@ class MonthlyAbsenceController extends Controller
             'attendances',
             'pendingPermits',
             'months',
+            'years',
             'selectedMonth',
             'selectedYear',
             'search'

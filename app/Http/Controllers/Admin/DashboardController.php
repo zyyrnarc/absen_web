@@ -18,25 +18,48 @@ class DashboardController extends Controller
         $totalMahasiswa = User::query()->where('role', 'intern')->count();
         $totalMentor    = Mentor::count();
         $selectedYear   = (int) request('year', now()->year);
+        $selectedMonth  = max(1, min(12, (int) request('bulan', now()->month)));
 
         $notifications = Attendance::query()
             ->with(['user', 'student'])
             ->where(function ($query) {
                 $query->whereNotNull('check_in_at')
+                    ->orWhereNotNull('check_out_at')
                     ->orWhereNotNull('time');
             })
-            ->latest('check_in_at')
-            ->take(5)
+            ->latest('updated_at')
+            ->take(20)
             ->get()
-            ->map(function (Attendance $attendance): string {
+            ->flatMap(function (Attendance $attendance) {
                 $name = $attendance->user?->name ?? $attendance->student?->name ?? 'Pengguna';
-                $time = $attendance->check_in_at?->format('H:i') ?? $attendance->time ?? '-';
+                $events = [];
 
-                return "@{$name} Hadir Pukul {$time} WIB";
+                if ($attendance->check_out_at) {
+                    $events[] = [
+                        'time' => $attendance->check_out_at,
+                        'message' => "@{$name} Check-out Pukul {$attendance->check_out_at->format('H:i')} WIB",
+                    ];
+                }
+
+                $checkInTime = $attendance->check_in_at;
+                if (! $checkInTime && $attendance->time && $attendance->attendance_date) {
+                    $checkInTime = Carbon::parse($attendance->attendance_date->toDateString().' '.$attendance->time);
+                }
+
+                if ($checkInTime) {
+                    $events[] = [
+                        'time' => $checkInTime,
+                        'message' => "@{$name} Check-in Pukul {$checkInTime->format('H:i')} WIB",
+                    ];
+                }
+
+                return $events;
             })
+            ->sortByDesc('time')
+            ->take(5)
+            ->pluck('message')
             ->toArray();
 
-        $selectedMonth = request('bulan', now()->month);
         $months = [
             1=>"Januari {$selectedYear}",   2=>"Februari {$selectedYear}",
             3=>"Maret {$selectedYear}",     4=>"April {$selectedYear}",
@@ -46,26 +69,30 @@ class DashboardController extends Controller
             11=>"November {$selectedYear}", 12=>"Desember {$selectedYear}",
         ];
 
-        $days = ['Senin','Selasa','Rabu','Kamis','Jumat'];
-        $chartData = array_fill_keys($days, 0);
+        $monthStart = Carbon::create($selectedYear, $selectedMonth, 1)->startOfDay();
+        $monthEnd = $monthStart->copy()->endOfMonth();
 
-        $monthlyAttendances = Attendance::query()
+        $dailyAttendanceCounts = Attendance::query()
+            ->selectRaw('DATE(attendance_date) as attendance_day, COUNT(*) as total')
             ->whereYear('attendance_date', $selectedYear)
             ->whereMonth('attendance_date', $selectedMonth)
             ->where(function ($query) {
                 $query->whereNotNull('check_in_at')
                     ->orWhereNotNull('time');
             })
-            ->get();
+            ->groupBy('attendance_day')
+            ->pluck('total', 'attendance_day');
 
-        foreach ($monthlyAttendances as $attendance) {
-            $dayName = Carbon::parse($attendance->attendance_date)->locale('id')->dayName;
+        $chartData = [];
+        $cursor = $monthStart->copy();
 
-            if (array_key_exists($dayName, $chartData)) {
-                $chartData[$dayName]++;
-            }
+        while ($cursor->lte($monthEnd)) {
+            $date = $cursor->toDateString();
+            $chartData[$cursor->format('j')] = (int) ($dailyAttendanceCounts[$date] ?? 0);
+            $cursor->addDay();
         }
-        $chartMax = max($chartData) ?: 30;
+
+        $chartMax = max(1, max($chartData));
 
         $weeklyActivities = InternActivity::query()
             ->whereDate('activity_date', today())
@@ -74,7 +101,7 @@ class DashboardController extends Controller
             ->map(fn ($w) => [
                 'day'       => Carbon::parse($w->activity_date)->locale('id')->dayName,
                 'mahasiswa' => $w->user?->name ?? 'Pengguna',
-                'aktivty'   => $w->title,
+                'activity'  => $w->title,
             ])->toArray();
 
         $pendingPermits = Permit::where('status', 'pending')

@@ -22,9 +22,11 @@
 
     <div class="notification-box flex-1 bg-white rounded-2xl p-3 shadow-md border border-purple-100">
         <div class="text-2xl mb-1">🔔</div>
-        @foreach($notifications as $notif)
+        @forelse($notifications as $notif)
             <p class="text-xs text-gray-600 truncate py-0.5">{{ $notif }}</p>
-        @endforeach
+        @empty
+            <p class="text-xs text-gray-400 py-0.5">Belum ada notifikasi absensi.</p>
+        @endforelse
     </div>
 
 </div>
@@ -39,17 +41,21 @@
         <div class="bg-white rounded-2xl p-5 shadow-md">
             <div class="flex items-center justify-between mb-4">
                 <h2 class="text-base font-bold text-gray-700">Kehadiran Bulan</h2>
-                <select name="bulan" class="month-select text-sm border rounded-lg px-3 py-1.5 focus:outline-none">
-                    @foreach($months as $key => $month)
-                        <option value="{{ $key }}" {{ $selectedMonth == $key ? 'selected' : '' }}>{{ $month }}</option>
-                    @endforeach
-                </select>
+                <form method="GET" action="{{ route('dashboard') }}">
+                    <input type="hidden" name="year" value="{{ request('year', now()->year) }}">
+                    <select name="bulan" class="month-select text-sm border rounded-lg px-3 py-1.5 focus:outline-none" onchange="this.form.submit()">
+                        @foreach($months as $key => $month)
+                            <option value="{{ $key }}" {{ $selectedMonth == $key ? 'selected' : '' }}>{{ $month }}</option>
+                        @endforeach
+                    </select>
+                </form>
             </div>
-            <div class="chart-container flex items-end gap-4 h-36 px-4 pt-2 rounded-xl">
+            <div class="chart-container flex items-end gap-1 h-36 px-4 pt-2 rounded-xl" style="overflow-x: auto;">
                 @foreach($chartData as $day => $value)
-                    <div class="chart-bar-wrap flex flex-col items-center flex-1 gap-1">
+                    <div class="chart-bar-wrap flex flex-col items-center flex-1 gap-1" style="min-width: 18px;">
                         <div class="chart-bar rounded-t-full w-full"
-                             style="height: {{ ($value / $chartMax) * 100 }}%; min-height: 8px;"></div>
+                             title="{{ $value }} mahasiswa hadir tanggal {{ $day }}"
+                             style="height: {{ ($value / $chartMax) * 100 }}%; {{ $value > 0 ? 'min-height: 8px;' : 'min-height: 0;' }}"></div>
                         <span class="text-xs text-gray-500">{{ $day }}</span>
                     </div>
                 @endforeach
@@ -66,7 +72,7 @@
                     <tr class="text-gray-600 font-semibold text-left">
                         <th class="px-4 py-2.5">Day</th>
                         <th class="px-4 py-2.5">Mahasiswa</th>
-                        <th class="px-4 py-2.5">Aktivty</th>
+                        <th class="px-4 py-2.5">Activity</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -74,7 +80,7 @@
                         <tr class="border-t border-gray-100">
                             <td class="px-4 py-2.5 capitalize text-gray-600">{{ $activity['day'] }}</td>
                             <td class="px-4 py-2.5 text-gray-700">{{ $activity['mahasiswa'] }}</td>
-                            <td class="px-4 py-2.5 text-gray-700">{{ $activity['aktivty'] }}</td>
+                            <td class="px-4 py-2.5 text-gray-700">{{ $activity['activity'] }}</td>
                         </tr>
                     @empty
                         <tr>
