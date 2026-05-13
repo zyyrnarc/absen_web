@@ -7,16 +7,12 @@
     </div>
 @endif
 
-@if(session('success'))
-    <div class="flash-success mb-4">{{ session('success') }}</div>
-@endif
-
-<div class="flex items-center justify-between mb-5">
+<div class="flex items-center justify-between gap-4 mb-5 flex-wrap">
     <form method="GET" action="{{ route('manage-student') }}">
         <div class="relative">
             <input type="text" name="search" value="{{ $search }}"
-                   placeholder="Search"
-                   class="search-input pl-4 pr-8 py-2 w-48">
+                   placeholder="Search student"
+                   class="search-input pl-4 pr-8 py-2 w-64">
             <span class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm">S</span>
         </div>
     </form>
@@ -26,20 +22,29 @@
     </button>
 </div>
 
-<div class="bg-white rounded-2xl shadow-md overflow-hidden">
-    <table class="w-full text-sm">
+<section class="bg-white rounded-2xl shadow-md overflow-hidden student-table-shell">
+    <div class="student-table-head">
+        <div>
+            <p class="student-table-kicker">Data Mahasiswa</p>
+            <h2 class="student-table-title">Daftar akun student</h2>
+        </div>
+        <p class="student-table-meta">{{ $students->count() }} student</p>
+    </div>
+
+    <div class="overflow-x-auto">
+    <table class="w-full text-sm student-table">
         <thead>
             <tr class="bg-purple-100 text-purple-800 font-bold text-left">
-                <th class="px-5 py-3">Image</th>
-                <th class="px-5 py-3">Name</th>
-                <th class="px-5 py-3">NIM</th>
-                <th class="px-5 py-3">Major</th>
-                <th class="px-5 py-3">Gender</th>
-                <th class="px-5 py-3">Campus</th>
-                <th class="px-5 py-3">Mentor</th>
-                <th class="px-5 py-3">Password</th>
-                <th class="px-5 py-3">Status</th>
-                <th class="px-5 py-3">Action</th>
+                <th class="px-5 py-3 whitespace-nowrap">Image</th>
+                <th class="px-5 py-3 whitespace-nowrap">Name</th>
+                <th class="px-5 py-3 whitespace-nowrap">NIM</th>
+                <th class="px-5 py-3 whitespace-nowrap">Major</th>
+                <th class="px-5 py-3 whitespace-nowrap">Gender</th>
+                <th class="px-5 py-3 whitespace-nowrap">Campus</th>
+                <th class="px-5 py-3 whitespace-nowrap">Mentor</th>
+                <th class="px-5 py-3 whitespace-nowrap">Password</th>
+                <th class="px-5 py-3 whitespace-nowrap">Status</th>
+                <th class="px-5 py-3 whitespace-nowrap">Action</th>
             </tr>
         </thead>
         <tbody>
@@ -66,7 +71,7 @@
                     <td class="px-5 py-3 text-gray-600">{{ $student->campus ?? '-' }}</td>
                     <td class="px-5 py-3 text-gray-600">{{ $student->mentor ?? '-' }}</td>
                     <td class="px-5 py-3 text-gray-600">{{ $student->password }}</td>
-                    <td class="px-5 py-3">
+                    <td class="px-5 py-3 student-status-cell">
                         <span class="{{ $student->status === 'active' ? 'status-active' : 'status-inactive' }}">
                             {{ $student->status }}
                         </span>
@@ -93,22 +98,31 @@
         </tbody>
     </table>
 </div>
+</section>
 
-<div id="modalAddStudent" class="modal-corner modal-student hidden">
-    <h2>Add Student</h2>
-    @include('admin.manage-student.partials.form', [
-        'formAction' => route('manage-student.store'),
-        'formMethod' => 'POST',
-        'submitLabel' => 'Save',
-        'showStatus' => false,
-        'student' => null,
-        'isModal' => true,
-    ])
+<div id="modalAddStudent" class="modal-student-overlay hidden" onclick="closeAddStudentModal(event)">
+    <div class="modal-corner modal-student">
+        <h2>Add Student</h2>
+        @include('admin.manage-student.partials.form', [
+            'formAction' => route('manage-student.store'),
+            'formMethod' => 'POST',
+            'submitLabel' => 'Save',
+            'showStatus' => false,
+            'student' => null,
+            'isModal' => true,
+        ])
+    </div>
 </div>
 
 <script>
     function toggleAddStudentModal() {
         document.getElementById('modalAddStudent').classList.toggle('hidden');
+    }
+
+    function closeAddStudentModal(event) {
+        if (event.target.id === 'modalAddStudent') {
+            document.getElementById('modalAddStudent').classList.add('hidden');
+        }
     }
 
     @if ($errors->any())

@@ -175,7 +175,6 @@
     <div class="page">
         <div class="toolbar">
             <a href="{{ route('weekly-activity', ['student_id' => $selectedStudent, 'month' => $selectedMonth, 'year' => $selectedYear]) }}" class="btn btn-back">Kembali</a>
-            <button type="button" class="btn btn-print" onclick="window.print()">Print / Save PDF</button>
         </div>
 
         <div class="header">

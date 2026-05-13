@@ -343,15 +343,9 @@ body {
 
 .stat-grid {
     display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr)) auto;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 16px;
     align-items: stretch;
-}
-
-.stat-grid-action {
-    display: flex;
-    align-items: center;
-    justify-content: flex-end;
 }
 
 .page-split {
@@ -515,8 +509,17 @@ table tbody td {
 
 table thead th,
 table tbody td {
+    min-width: 0;
+}
+
+table thead th {
+    white-space: nowrap;
+    overflow-wrap: normal;
+}
+
+table tbody td {
     white-space: normal;
-    overflow-wrap: anywhere;
+    overflow-wrap: break-word;
 }
 
 table tbody tr:hover {
@@ -531,6 +534,55 @@ table tbody tr:hover td {
 .permit-panel table,
 .bg-white.rounded-2xl.shadow-md.overflow-hidden table {
     border-radius: 18px;
+}
+
+.student-table-shell {
+    overflow: hidden;
+}
+
+.student-table-head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 20px 24px 16px;
+    border-bottom: 1px solid #dce8f6;
+    background: linear-gradient(180deg, rgba(247, 251, 255, 0.96) 0%, rgba(241, 247, 255, 0.92) 100%);
+}
+
+.student-table-kicker {
+    margin: 0;
+    font-size: 0.72rem;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #6f89ad;
+}
+
+.student-table-title {
+    margin: 6px 0 0;
+    font-size: 1.15rem;
+    font-weight: 800;
+    color: #183153;
+}
+
+.student-table-meta {
+    margin: 0;
+    padding: 8px 12px;
+    border-radius: 999px;
+    background: #e9f1ff;
+    color: #3151a7;
+    font-size: 0.82rem;
+    font-weight: 800;
+    white-space: nowrap;
+}
+
+.student-table {
+    min-width: 1180px;
+}
+
+.student-status-cell {
+    white-space: nowrap;
 }
 
 .content-panel,
@@ -852,10 +904,6 @@ table tbody tr:hover td {
         grid-template-columns: repeat(2, minmax(0, 1fr));
     }
 
-    .stat-grid-action {
-        justify-content: flex-start;
-    }
-
     .page-split {
         grid-template-columns: 1fr;
     }
@@ -945,6 +993,12 @@ table tbody tr:hover td {
         gap: 16px;
     }
 
+    .student-table-head {
+        flex-direction: column;
+        align-items: flex-start;
+        padding: 18px 18px 14px;
+    }
+
     .student-photo-box {
         flex-direction: column;
         align-items: flex-start;
@@ -960,6 +1014,21 @@ table tbody tr:hover td {
 
     .admin-profile {
         justify-content: space-between;
+    }
+
+    .modal-student-overlay {
+        padding: 0;
+        align-items: stretch;
+    }
+
+    .modal-student {
+        width: 100%;
+        max-width: 100%;
+        min-height: 100vh;
+        max-height: 100vh;
+        height: 100vh;
+        border-radius: 0;
+        padding: 20px 18px;
     }
 }
 
@@ -1063,24 +1132,6 @@ table tbody tr:hover td {
 .btn-view:hover {
     opacity: 0.92;
     transform: scale(1.04);
-}
-
-/* PDF BUTTON */
-.btn-pdf {
-    background: linear-gradient(135deg, #f97316, #ea580c);
-    color: white;
-    font-size: 0.72rem;
-    font-weight: 800;
-    padding: 5px 10px;
-    border-radius: 8px;
-    text-decoration: none;
-    letter-spacing: 0.05em;
-    transition: opacity 0.2s, transform 0.15s ease;
-}
-
-.btn-pdf:hover {
-    opacity: 0.92;
-    transform: translateY(-1px);
 }
 
 /* STUDENT SELECT BUTTON */
@@ -1216,9 +1267,6 @@ table tbody tr:hover td {
 
 /* MODAL POJOK KANAN */
 .modal-corner {
-    position: fixed;
-    bottom: 60px;
-    right: 40px;
     background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
     border-radius: 16px;
     padding: 24px;
@@ -1228,10 +1276,29 @@ table tbody tr:hover td {
     border: 1px solid var(--line);
 }
 
+.modal-student-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 60;
+    background: rgba(15, 23, 39, 0.22);
+    backdrop-filter: blur(4px);
+    display: flex;
+    justify-content: flex-end;
+    align-items: stretch;
+    padding: 16px;
+}
+
 .modal-student {
-    width: 560px;
+    position: relative;
+    width: min(680px, 100%);
     max-width: calc(100vw - 32px);
-    padding: 28px;
+    min-height: calc(100vh - 32px);
+    max-height: calc(100vh - 32px);
+    height: calc(100vh - 32px);
+    margin-left: auto;
+    border-radius: 28px;
+    padding: 28px 28px 24px;
+    overflow-y: auto;
 }
 
 .modal-corner h2 {

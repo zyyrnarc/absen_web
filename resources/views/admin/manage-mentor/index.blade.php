@@ -27,7 +27,7 @@
     </button>
 </div>
 
-<div class="bg-white rounded-2xl shadow-md overflow-hidden" style="max-width: 760px;">
+<div class="bg-white rounded-2xl shadow-md overflow-x-auto">
     <table class="w-full text-sm">
         <thead>
             <tr class="bg-purple-100 text-purple-800 font-bold text-left">

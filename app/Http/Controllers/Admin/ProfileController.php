@@ -99,9 +99,9 @@ class ProfileController extends Controller
         }
 
         $admin->update([
-            'password' => $validated['password'],
+            'password' => Hash::make($validated['password']),
         ]);
 
-        return back()->with('success', 'Password has been reset successfully.');
+        return back()->with('success', 'Password admin berhasil diperbarui.');
     }
 }

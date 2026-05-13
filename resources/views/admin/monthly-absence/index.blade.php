@@ -17,13 +17,6 @@
         <p class="text-xs font-semibold uppercase opacity-80 mb-1">Waiting Permit</p>
         <p class="text-4xl font-extrabold">{{ $waitingPermit }}</p>
     </div>
-    <div class="stat-grid-action">
-        <a
-            href="{{ route('monthly-absence.export', ['month' => $selectedMonth, 'year' => $selectedYear, 'search' => $search]) }}"
-            target="_blank"
-            rel="noopener"
-            class="btn-pdf">PDF</a>
-    </div>
 </div>
 
 {{-- MAIN ROW --}}

@@ -12,18 +12,29 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('users', function (Blueprint $table) {
+            if (! Schema::hasColumn('users', 'nim')) {
+                $table->string('nim')->nullable();
+            }
 
-            $table->string('nim')->nullable();
+            if (! Schema::hasColumn('users', 'department')) {
+                $table->string('department')->nullable();
+            }
 
-            $table->string('department')->nullable();
+            if (! Schema::hasColumn('users', 'study_program')) {
+                $table->string('study_program')->nullable();
+            }
 
-            $table->string('study_program')->nullable();
+            if (! Schema::hasColumn('users', 'industry_name')) {
+                $table->string('industry_name')->nullable();
+            }
 
-            $table->string('industry_name')->nullable();
+            if (! Schema::hasColumn('users', 'mentor_name')) {
+                $table->string('mentor_name')->nullable();
+            }
 
-            $table->string('mentor_name')->nullable();
-
-            $table->string('mentor_position')->nullable();
+            if (! Schema::hasColumn('users', 'mentor_position')) {
+                $table->string('mentor_position')->nullable();
+            }
         });
     }
 
@@ -33,15 +44,18 @@ return new class extends Migration
     public function down(): void
     {
          Schema::table('users', function (Blueprint $table) {
-
-            $table->dropColumn([
-                'nim',
-                'department',
-                'study_program',
-                'industry_name',
-                'mentor_name',
+            foreach ([
                 'mentor_position',
-            ]);
+                'mentor_name',
+                'industry_name',
+                'study_program',
+                'department',
+                'nim',
+            ] as $column) {
+                if (Schema::hasColumn('users', $column)) {
+                    $table->dropColumn($column);
+                }
+            }
         });
     }
 };

@@ -153,55 +153,6 @@
       opacity: .6; cursor: not-allowed; transform: none;
     }
 
-    .links {
-      display: flex;
-      justify-content: space-between;
-      margin-top: .95rem;
-    }
-
-    .links a {
-      color: var(--muted);
-      font-size: .8rem;
-      text-decoration: none;
-      transition: color .2s;
-    }
-    .links a:hover { color: #ffffff; }
-
-    .divider {
-      display: flex;
-      align-items: center;
-      gap: .8rem;
-      margin: 1.4rem 0 1.1rem;
-      color: var(--muted);
-      font-size: .72rem;
-      letter-spacing: .12em;
-      text-transform: uppercase;
-    }
-    .divider::before, .divider::after {
-      content: '';
-      flex: 1;
-      height: 1px;
-      background: var(--border);
-    }
-
-    .social-row {
-      display: flex;
-      justify-content: center;
-      gap: 1rem;
-    }
-
-    .social-btn {
-      width: 46px; height: 46px;
-      border-radius: 50%;
-      border: 1px solid var(--border);
-      background: rgba(255,255,255,0.08);
-      display: flex; align-items: center; justify-content: center;
-      cursor: pointer;
-      transition: background .2s, transform .15s;
-    }
-    .social-btn:hover { background: rgba(255,255,255,0.16); transform: translateY(-2px); }
-    .social-btn img { width: 22px; height: 22px; }
-
     .error-box {
       color: var(--danger);
       text-align: center;
@@ -255,24 +206,6 @@
     </button>
   </form>
 
-  <div class="links">
-    <!-- HAPUS # -->
-    <a href="javascript:void(0)">Forgot Password ?</a>
-  </div>
-
-  <div class="divider">OR LOGIN WITH</div>
-
-  <div class="social-row">
-    <button class="social-btn" type="button">
-      <!-- icon tetap -->
-      <svg width="22" height="22" viewBox="0 0 48 48">
-        <path fill="#EA4335" d="M24 9.5c3.5 0 6.6 1.2 9 3.2l6.7-6.7C35.8 2.5 30.2 0 24 0 14.6 0 6.6 5.4 2.6 13.3l7.8 6C12.3 13 17.7 9.5 24 9.5z"/>
-        <path fill="#4285F4" d="M46.5 24.5c0-1.6-.1-3.1-.4-4.5H24v8.5h12.7c-.6 3-2.3 5.5-4.8 7.2l7.5 5.8c4.4-4 6.9-9.9 7.1-17z"/>
-        <path fill="#FBBC05" d="M10.4 28.7A14.4 14.4 0 0 1 9.5 24c0-1.6.3-3.2.8-4.7l-7.8-6A23.8 23.8 0 0 0 0 24c0 3.9.9 7.5 2.6 10.7l7.8-6z"/>
-        <path fill="#34A853" d="M24 48c6.2 0 11.4-2 15.2-5.5l-7.5-5.8c-2 1.4-4.6 2.2-7.7 2.2-6.3 0-11.7-4.2-13.6-9.9l-7.8 6C6.6 42.6 14.6 48 24 48z"/>
-      </svg>
-    </button>
-  </div>
 </div>
 
 </body>

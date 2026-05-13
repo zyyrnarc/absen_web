@@ -10,12 +10,14 @@ return new class extends Migration
     {
         Schema::table('users', function (Blueprint $table) {
             if (Schema::hasColumn('users', 'username')) {
+                $table->dropUnique('users_username_unique');
                 $table->dropColumn('username');
             }
         });
 
         Schema::table('students', function (Blueprint $table) {
             if (Schema::hasColumn('students', 'username')) {
+                $table->dropUnique('students_username_unique');
                 $table->dropColumn('username');
             }
         });

@@ -32,14 +32,6 @@
         </select>
     </form>
 
-    <a
-        href="{{ route('weekly-activity.export', ['student_id' => $selectedStudent, 'month' => $selectedMonth, 'year' => $selectedYear]) }}"
-        target="_blank"
-        rel="noopener"
-        class="btn-pdf">
-        PDF
-    </a>
-
 </div>
 
 {{-- TABLE --}}
