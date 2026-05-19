@@ -465,7 +465,7 @@ class MobileAttendanceController extends Controller
         $tableLeft = 60;
         $tableWidth = 475;
         $tableBottom = $tableTop - $headerHeight - ($rowCount * $rowHeight);
-        $columnWidths = [28, 162, 22, 22, 22, 22, 22, 72, 103];
+        $columnWidths = [28, 140, 22, 22, 22, 22, 22, 82, 115];
         $columns = [$tableLeft];
 
         foreach ($columnWidths as $width) {
@@ -477,8 +477,9 @@ class MobileAttendanceController extends Controller
             $font = $bold ? 'F2' : 'F1';
             $commands[] = 'BT /'.$font.' '.$size.' Tf '.$this->pdfNumber($x).' '.$this->pdfNumber($y).' Td ('.$this->pdfEscape($value).') Tj ET';
         };
-        $center = function (float $centerX, float $y, int $size, string $value, bool $bold = false) use ($text): void {
-            $estimatedWidth = strlen($this->pdfPlainText($value)) * $size * 0.46;
+        $estimateWidth = fn (int $size, string $value, bool $bold = false): float => $this->pdfTextWidth($value, $size, $bold);
+        $center = function (float $centerX, float $y, int $size, string $value, bool $bold = false) use ($text, $estimateWidth): void {
+            $estimatedWidth = $estimateWidth($size, $value, $bold);
             $text($centerX - ($estimatedWidth / 2), $y, $size, $value, $bold);
         };
         $line = function (float $x1, float $y1, float $x2, float $y2) use (&$commands): void {
@@ -495,7 +496,7 @@ class MobileAttendanceController extends Controller
         $nimName = trim(($profile?->student_id ?: '-').' / '.$user->name);
         $study = trim(($profile?->major ?: '-').' / '.($profile?->study_program ?: '-'));
         $industry = $setting?->company_name ?: ($profile?->division ?: '-');
-        [$supervisor, $supervisorPosition] = $this->signatureSupervisor($profile?->supervisor_name);
+        [$supervisor, $supervisorPosition] = $this->signatureSupervisor($user->mentor_name ?: $profile?->supervisor_name, $user->mentor_position);
 
         $center(297.5, 782, 9, Str::upper($institution), true);
         $center(297.5, 770, 9, 'DAFTAR HADIR MAHASISWA - PROGRAM MAGANG INDUSTRI', true);
@@ -548,12 +549,13 @@ class MobileAttendanceController extends Controller
             $center(($columns[0] + $columns[1]) / 2, $y, 8, (string) ($i + 1));
 
             if (! $day) {
-                $this->writeParafNumber($center, $columns[8], $columns[9], $y, $i + 1);
+                $this->writeParafNumber($text, $columns[8], $columns[9], $y, $i + 1);
                 continue;
             }
 
             $date = Carbon::parse($day['date']);
-            $text($columns[1] + 5, $y, 6, $this->indonesianDate($date));
+            $text($columns[1] + 5, $y, 6, $this->indonesianDayName($date).',');
+            $text($columns[1] + 38, $y, 6, $this->indonesianDateWithoutDay($date));
             $mark = $this->attendanceReportMark($day);
             $markIndex = array_search($mark, ['H', 'I', 'S', 'B', 'T'], true);
 
@@ -561,24 +563,24 @@ class MobileAttendanceController extends Controller
                 $check(($columns[2 + $markIndex] + $columns[3 + $markIndex]) / 2, $y + 2);
             }
 
-            $this->writeParafNumber($center, $columns[8], $columns[9], $y, $i + 1);
+            $this->writeParafNumber($text, $columns[8], $columns[9], $y, $i + 1);
         }
 
         $legendY = $tableBottom - 18;
         $text(60, $legendY, 8, 'H = Hadir     I = Ijin        S = Sakit        B = Bolos/Alfa        T = Terlambat', true);
         $text(60, $legendY - 15, 8, 'Catatan :', true);
-        $text(70, $legendY - 29, 7, '/ Bagi Mahasiswa yang Ijin atau Sakit, harap mengkonfirmasi ke Dosen Pembimbing Magang ataupun');
+        $text(70, $legendY - 29, 7, '- Bagi Mahasiswa yang Ijin atau Sakit, harap mengkonfirmasi ke Dosen Pembimbing Magang ataupun');
         $text(78, $legendY - 41, 7, 'Pembimbing Industri Magang.');
-        $text(70, $legendY - 55, 7, '/ Mahasiswa diwajibkan mengirim salinan daftar hadir harian kepada dosen pembimbing');
+        $text(70, $legendY - 55, 7, '- Mahasiswa diwajibkan mengirim salinan daftar hadir harian kepada dosen pembimbing');
         $text(78, $legendY - 67, 7, '(via email/WA dan upload di drive) di setiap bulan atau mingguan.');
 
         $signatureDate = $rows->filter()->last()['date'] ?? $monthEnd->toDateString();
         $signature = Carbon::parse($signatureDate);
-        $text(360, 154, 8, 'Indramayu, '.$this->indonesianDateWithoutDay($signature));
-        $text(360, 141, 8, 'Pembimbing Industri,');
-        $text(360, 88, 8, $supervisor, true);
-        $line(360, 77, 495, 77);
-        $text(360, 64, 8, $supervisorPosition);
+        $text(360, 214, 8, 'Indramayu, '.$this->indonesianDateWithoutDay($signature));
+        $text(360, 201, 8, 'Pembimbing Industri,');
+        $text(360, 148, 8, $supervisor, true);
+        $line(360, 143, 360 + $estimateWidth(8, $supervisor, true), 143);
+        $text(360, 135, 8, $supervisorPosition);
 
         return $this->buildSimplePdf($commands);
     }
@@ -608,7 +610,7 @@ class MobileAttendanceController extends Controller
         return null;
     }
 
-    private function signatureSupervisor(?string $supervisorName): array
+    private function signatureSupervisor(?string $supervisorName, ?string $fallbackPosition = null): array
     {
         $name = trim((string) $supervisorName);
         $mentor = $name !== ''
@@ -621,27 +623,44 @@ class MobileAttendanceController extends Controller
                 ->first();
         }
 
+        $baseName = trim(Str::before($name, ','));
+        if (! $mentor && $baseName !== '' && $baseName !== $name) {
+            $mentor = Mentor::query()
+                ->where('name', 'like', '%'.$baseName.'%')
+                ->first();
+        }
+
+        $position = trim((string) ($mentor?->position ?: $fallbackPosition));
+        if (Str::lower($position) === 'pembimbing industri') {
+            $position = '';
+        }
+
         return [
             $mentor?->name ?: ($name !== '' ? $name : 'Pembimbing Industri'),
-            $mentor?->position ?: 'Pembimbing Industri',
+            $position !== '' ? $position : '-',
         ];
     }
 
-    private function writeParafNumber(callable $center, float $left, float $right, float $y, int $number): void
+    private function writeParafNumber(callable $text, float $left, float $right, float $y, int $number): void
     {
         $middle = ($left + $right) / 2;
         $x = $number % 2 === 1
-            ? $left + 16
-            : $middle + 16;
+            ? $left + 4
+            : $middle + 4;
 
-        $center($x, $y, 7, (string) $number);
+        $text($x, $y, 7, (string) $number);
     }
 
     private function indonesianDate(Carbon $date): string
     {
+        return $this->indonesianDayName($date).', '.$this->indonesianDateWithoutDay($date);
+    }
+
+    private function indonesianDayName(Carbon $date): string
+    {
         $days = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', "Jum'at", 'Sabtu'];
 
-        return $days[$date->dayOfWeek].', '.$this->indonesianDateWithoutDay($date);
+        return $days[$date->dayOfWeek];
     }
 
     private function indonesianDateWithoutDay(Carbon $date): string
@@ -709,6 +728,33 @@ class MobileAttendanceController extends Controller
         $text = iconv('UTF-8', 'ASCII//TRANSLIT//IGNORE', $value);
 
         return preg_replace('/[^\x20-\x7E]/', '', $text ?: $value) ?? '';
+    }
+
+    private function pdfTextWidth(string $value, float $size, bool $bold = false): float
+    {
+        $widths = [
+            ' ' => 278, '!' => 278, '"' => 355, '#' => 556, '$' => 556, '%' => 889, '&' => 667, "'" => 191,
+            '(' => 333, ')' => 333, '*' => 389, '+' => 584, ',' => 278, '-' => 333, '.' => 278, '/' => 278,
+            '0' => 556, '1' => 556, '2' => 556, '3' => 556, '4' => 556, '5' => 556, '6' => 556, '7' => 556,
+            '8' => 556, '9' => 556, ':' => 333, ';' => 333, '<' => 584, '=' => 584, '>' => 584, '?' => 611,
+            '@' => 975, 'A' => 667, 'B' => 667, 'C' => 722, 'D' => 722, 'E' => 667, 'F' => 611, 'G' => 778,
+            'H' => 722, 'I' => 278, 'J' => 500, 'K' => 667, 'L' => 611, 'M' => 833, 'N' => 722, 'O' => 778,
+            'P' => 667, 'Q' => 778, 'R' => 722, 'S' => 667, 'T' => 611, 'U' => 722, 'V' => 667, 'W' => 944,
+            'X' => 667, 'Y' => 667, 'Z' => 611, '[' => 333, '\\' => 278, ']' => 333, '^' => 584, '_' => 556,
+            '`' => 333, 'a' => 556, 'b' => 611, 'c' => 556, 'd' => 611, 'e' => 556, 'f' => 333, 'g' => 611,
+            'h' => 611, 'i' => 278, 'j' => 278, 'k' => 556, 'l' => 278, 'm' => 889, 'n' => 611, 'o' => 611,
+            'p' => 611, 'q' => 611, 'r' => 389, 's' => 556, 't' => 333, 'u' => 611, 'v' => 556, 'w' => 778,
+            'x' => 556, 'y' => 556, 'z' => 500, '{' => 389, '|' => 280, '}' => 389, '~' => 584,
+        ];
+
+        $units = 0;
+        $plainText = $this->pdfPlainText($value);
+
+        for ($i = 0; $i < strlen($plainText); $i++) {
+            $units += $widths[$plainText[$i]] ?? 556;
+        }
+
+        return ($units / 1000) * $size;
     }
 
     private function pdfNumber(float $value): string

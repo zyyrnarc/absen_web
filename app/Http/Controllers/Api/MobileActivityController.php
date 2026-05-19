@@ -13,6 +13,7 @@ use App\Support\MobileApiAuth;
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 
 class MobileActivityController extends Controller
 {
@@ -348,9 +349,21 @@ class MobileActivityController extends Controller
                 ->first();
         }
 
+        $baseName = trim(Str::before($name, ','));
+        if (! $mentor && $baseName !== '' && $baseName !== $name) {
+            $mentor = Mentor::query()
+                ->where('name', 'like', '%'.$baseName.'%')
+                ->first();
+        }
+
+        $position = trim((string) ($mentor?->position ?: $fallbackPosition));
+        if (Str::lower($position) === 'pembimbing industri') {
+            $position = '';
+        }
+
         return [
             $mentor?->name ?: ($name !== '' ? $name : '-'),
-            $mentor?->position ?: ($fallbackPosition ?: '-'),
+            $position !== '' ? $position : '-',
         ];
     }
 

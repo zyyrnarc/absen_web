@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Route;
 
 Route::prefix('mobile')->group(function () {
     Route::post('/login', [MobileAuthController::class, 'login']);
+    Route::post('/google-login', [MobileAuthController::class, 'googleLogin']);
 
     Route::get('/me', [MobileAuthController::class, 'me']);
     Route::post('/logout', [MobileAuthController::class, 'logout']);
