@@ -2,20 +2,16 @@
 
 @section('content')
 
-{{-- Flash --}}
-@if(session('success'))
-    <div class="flash-success mb-4">{{ session('success') }}</div>
-@endif
-
 {{-- SEARCH + ADD BUTTON --}}
 <div class="flex items-center justify-between mb-5">
-    <form method="GET" action="{{ route('manage-major') }}">
+    <form method="GET" action="{{ route('manage-major') }}" class="flex items-center gap-2">
         <div class="relative">
             <input type="text" name="search" value="{{ $search }}"
                    placeholder="Search"
                    class="search-input pl-4 pr-8 py-2 w-48">
-            <span class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm">🔍</span>
+            <span class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm">&#128269;</span>
         </div>
+        <a href="{{ route('manage-major') }}" class="btn-refresh" title="Refresh search">Refresh</a>
     </form>
 
     <button onclick="toggleAddModal()" class="btn-add">
@@ -43,7 +39,7 @@
                     <td class="px-5 py-3">
                         <div class="flex items-center gap-1.5">
                             {{-- Edit --}}
-                            <button onclick="openEditMajor({{ $major->id }}, '{{ $major->name }}', '{{ $major->study_program }}')"
+                            <button onclick="openEditMajor({{ $major->id }}, @js($major->name), @js($major->study_program))"
                                     class="btn-action btn-action-edit" title="Edit">✏</button>
 
                             {{-- Delete --}}

@@ -19,17 +19,14 @@
         {{-- Spacer --}}
         <div class="toolbar-spacer"></div>
 
-        {{-- Hamburger icon --}}
-        <div class="toolbar-icon">
-            ☰
-        </div>
-
         {{-- Month filter --}}
         <select name="month" class="filter-select" onchange="this.form.submit()">
             @foreach($months as $k => $m)
                 <option value="{{ $k }}" {{ $selectedMonth == $k ? 'selected' : '' }}>{{ $m }} {{ $selectedYear }}</option>
             @endforeach
         </select>
+
+        <a href="{{ route('weekly-activity') }}" class="btn-refresh" title="Refresh filter">Refresh</a>
     </form>
 
 </div>

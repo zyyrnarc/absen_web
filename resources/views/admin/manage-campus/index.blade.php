@@ -9,7 +9,7 @@
 @endif
 
 <div class="flex items-center justify-between gap-4 mb-5 flex-wrap">
-    <form method="GET" action="{{ route('manage-campus') }}">
+    <form method="GET" action="{{ route('manage-campus') }}" class="flex items-center gap-2">
         <div class="relative">
             <input
                 type="text"
@@ -20,6 +20,7 @@
             >
             <span class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm">&#128269;</span>
         </div>
+        <a href="{{ route('manage-campus') }}" class="btn-refresh" title="Refresh search">Refresh</a>
     </form>
 
     <button type="button" onclick="toggleAddModal()" class="btn-add">

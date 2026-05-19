@@ -8,13 +8,14 @@
 @endif
 
 <div class="flex items-center justify-between gap-4 mb-5 flex-wrap">
-    <form method="GET" action="{{ route('manage-student') }}">
+    <form method="GET" action="{{ route('manage-student') }}" class="flex items-center gap-2">
         <div class="relative">
             <input type="text" name="search" value="{{ $search }}"
                    placeholder="Search student"
                    class="search-input pl-4 pr-8 py-2 w-64">
             <span class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm">S</span>
         </div>
+        <a href="{{ route('manage-student') }}" class="btn-refresh" title="Refresh search">Refresh</a>
     </form>
 
     <button type="button" onclick="toggleAddStudentModal()" class="btn-add">

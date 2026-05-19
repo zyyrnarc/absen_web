@@ -98,10 +98,10 @@
                     </select>
                 </div>
                 <div class="relative">
-                    <span class="absolute left-2.5 top-1/2 -translate-y-1/2 text-gray-400 text-xs">Search</span>
                     <input type="text" name="search" value="{{ $search }}" placeholder="Search"
-                           class="search-input" onchange="this.form.submit()">
+                           class="search-input pl-4" onchange="this.form.submit()">
                 </div>
+                <a href="{{ route('monthly-absence') }}" class="btn-refresh" title="Refresh filter">Refresh</a>
             </form>
         </div>
 

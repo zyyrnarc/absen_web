@@ -1202,6 +1202,29 @@ table tbody tr:hover td {
     transform: translateY(-1px);
 }
 
+.btn-refresh {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 38px;
+    padding: 8px 14px;
+    border-radius: 10px;
+    border: 1px solid #cfe0f6;
+    background: #f5f9ff;
+    color: #2853b5;
+    font-size: 0.82rem;
+    font-weight: 800;
+    text-decoration: none;
+    white-space: nowrap;
+    transition: background 0.2s, transform 0.15s ease, border-color 0.2s;
+}
+
+.btn-refresh:hover {
+    background: #e9f2ff;
+    border-color: #b8cdec;
+    transform: translateY(-1px);
+}
+
 /* FORM INPUT MODAL */
 .form-input {
     width: 100%;
